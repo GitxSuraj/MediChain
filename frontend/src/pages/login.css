@@ -1,0 +1,149 @@
+/* Full Screen Background */
+
+.login-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: linear-gradient(
+        135deg,
+        #e3f2fd,
+        #f8fbff
+    );
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* Login Card */
+
+.login-card {
+
+    width: 420px;
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.12);
+
+    text-align: center;
+}
+
+
+/* Logo */
+
+.logo{
+
+    font-size:55px;
+
+    margin-bottom:10px;
+}
+
+
+/* Heading */
+
+.login-card h1{
+
+    color:#1565c0;
+
+    font-size:38px;
+
+    margin:0;
+}
+
+
+/* Subtitle */
+
+.subtitle{
+
+    color:#666;
+
+    margin-top:8px;
+
+    margin-bottom:30px;
+
+    font-size:16px;
+}
+
+
+/* Label */
+
+.login-card label{
+
+    display:block;
+
+    text-align:left;
+
+    font-weight:bold;
+
+    margin-bottom:10px;
+
+    color:#444;
+}
+
+
+/* Dropdown */
+
+.login-card select{
+
+    width:100%;
+
+    padding:14px;
+
+    border-radius:10px;
+
+    border:1px solid #ccc;
+
+    font-size:16px;
+
+    outline:none;
+
+    margin-bottom:25px;
+
+    transition:.3s;
+}
+
+.login-card select:focus{
+
+    border-color:#1565c0;
+
+    box-shadow:0 0 8px rgba(21,101,192,.25);
+}
+
+
+/* Button */
+
+.login-card button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#1565c0;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.login-card button:hover{
+
+    background:#0d47a1;
+
+    transform:translateY(-2px);
+}
