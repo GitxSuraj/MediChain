@@ -1,63 +1,79 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import type { AuthContextType, AuthState, LoginCredentials, Patient } from '../types/auth';
+import { fetchCurrentUser, loginRequest, logoutRequest } from '../services/auth';
 
- import { createContext, useContext, useState } from "react";
-import type { ReactNode } from "react";
-
-import type { AuthUser } from "../types/auth";
-
-interface AuthContextType {
-  user: AuthUser;
-
-  login: (user: AuthUser) => void;
-
-  logout: () => void;
-}
+const TOKEN_STORAGE_KEY = 'medichain_token';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [user, setUser] = useState<AuthUser>({
-    role: "",
-    patient_id: "",
-    hospital_id: "",
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: true,
   });
+  const [error, setError] = useState<string | null>(null);
 
-  function login(userData: AuthUser) {
-    setUser(userData);
-  }
+  // Rehydrate session on load
+  useEffect(() => {
+    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!storedToken) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return;
+    }
 
-  function logout() {
-    setUser({
-      role: "",
-      patient_id: "",
-      hospital_id: "",
+    fetchCurrentUser(storedToken)
+      .then((user: Patient) => {
+        setState({ user, token: storedToken, isAuthenticated: true, isLoading: false });
+      })
+      .catch(() => {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        setState({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      });
+  }, []);
+
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    setError(null);
+    setState((prev) => ({ ...prev, isLoading: true }));
+    try {
+      const { user, token } = await loginRequest(credentials);
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      setState({ user, token, isAuthenticated: true, isLoading: false });
+    } catch (err) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      throw err;
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    logoutRequest().finally(() => {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      setState({ user: null, token: null, isAuthenticated: false, isLoading: false });
     });
-  }
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const clearError = useCallback(() => setError(null), []);
+
+  const value = useMemo<AuthContextType>(
+    () => ({ ...state, error, login, logout, clearError }),
+    [state, error, login, logout, clearError]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error(
-      "useAuth must be used inside AuthProvider"
-    );
-  }
-
-  return context;
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+  return ctx;
 }

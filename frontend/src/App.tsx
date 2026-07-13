@@ -1,50 +1,75 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-
-import Login from "./pages/Login";
-import PatientDashboard from "./pages/PatientDashboard";
-import PatientProfile from "./pages/PatientProfile";
-import BookAppointment from "./pages/BookAppointment";
-import AppointmentStatus from "./pages/AppointmentStatus";
-import PatientHistory from "./pages/PatientHistory";
-import HospitalDirectory from "./pages/HospitalDirectory";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import PatientLayout from './components/PatientLayout';
+import Login from './pages/Login';
+import PatientDashboard from './pages/PatientDashboard';
+import PatientProfile from './pages/PatientProfile';
+import BookAppointment from './pages/BookAppointment';
+import AppointmentStatus from './pages/AppointmentStatus';
+import PatientHistory from './pages/PatientHistory';
+import HospitalDirectory from './pages/HospitalDirectory';
+import './App.css';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-      <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Dashboard"><PatientDashboard /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="My Profile"><PatientProfile /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/book-appointment"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Book Appointment"><BookAppointment /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointment-status"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Appointment Status"><AppointmentStatus /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/medical-history"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Medical History"><PatientHistory /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hospitals"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Hospital Directory"><HospitalDirectory /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/patient/dashboard"
-        element={<PatientDashboard />}
-      />
-
-      <Route
-        path="/patient/profile"
-        element={<PatientProfile />}
-      />
-
-      <Route
-        path="/patient/book"
-        element={<BookAppointment />}
-      />
-
-      <Route
-        path="/patient/status"
-        element={<AppointmentStatus />}
-      />
-
-      <Route
-        path="/patient/history"
-        element={<PatientHistory />}
-      />
-
-      <Route
-        path="/patient/hospitals"
-        element={<HospitalDirectory />}
-      />
-    </Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 

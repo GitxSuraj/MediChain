@@ -1,0 +1,34 @@
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-field__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.profile-field input,
+.profile-field select {
+  padding: 11px var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-size: 0.88rem;
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+}
+
+.profile-field input:focus,
+.profile-field select:focus {
+  outline: none;
+  border-color: var(--color-teal-500);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-teal-100);
+}
+
+.profile-field select {
+  cursor: pointer;
+}

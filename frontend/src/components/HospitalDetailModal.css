@@ -1,0 +1,205 @@
+.hospital-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: var(--space-5);
+  animation: fadeIn var(--transition-fast) both;
+}
+
+.hospital-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.hospital-modal__banner {
+  position: relative;
+  height: 130px;
+  background: linear-gradient(135deg, var(--color-navy-800), var(--color-teal-600));
+}
+
+.hospital-modal__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+.hospital-modal__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.hospital-modal__emergency-tag {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-6);
+  background: var(--color-coral-500);
+  color: var(--color-white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.hospital-modal__body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.hospital-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hospital-modal__header h2 {
+  font-size: 1.2rem;
+}
+
+.hospital-modal__rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-amber-500);
+  white-space: nowrap;
+}
+
+.hospital-modal__address {
+  font-size: 0.85rem;
+  margin-top: -8px;
+}
+
+.hospital-modal__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.hospital-modal__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hospital-modal__stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.hospital-modal__stat-label {
+  font-size: 0.68rem;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.hospital-modal__emergency-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  background: var(--color-coral-100);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--color-coral-600);
+  font-weight: 600;
+}
+
+.hospital-modal__section h4 {
+  font-size: 0.85rem;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-secondary);
+}
+
+.hospital-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hospital-modal__tag {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-violet-100);
+  color: var(--color-violet-600);
+}
+
+.hospital-modal__doctor-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hospital-modal__doctor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.hospital-modal__doctor-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-teal-500), var(--color-violet-500));
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.hospital-modal__doctor-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hospital-modal__doctor-specialty {
+  font-size: 0.76rem;
+  color: var(--color-text-tertiary);
+}
+
+.hospital-modal__cta {
+  width: 100%;
+  padding: 13px;
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .hospital-modal__stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+}

@@ -1,0 +1,37 @@
+.appointment-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.appointment-status__header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.appointment-status__timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.appointment-status__skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.appointment-status__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.appointment-status__empty p {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
