@@ -71,3 +71,13 @@ Content-Type: application/json
 ```
 
 Supported bed categories are `general`, `icu`, `oxygen`, and `emergency`. The API prevents available beds from going below `0` or above the category total.
+
+## WebSocket API
+
+Connect to realtime updates:
+
+```text
+ws://localhost:8000/ws
+```
+
+The server sends a `connection_established` event when a client connects. Clients can send `{"event": "ping"}` and receive `{"event": "pong"}`. Broadcast events are handled by the shared connection manager and will be used by bed updates in the next milestone.
