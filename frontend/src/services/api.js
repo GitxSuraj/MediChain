@@ -35,7 +35,7 @@ export function getHospitals(params = {}) {
 }
 
 export function updateBedAvailability(hospitalId, category, delta) {
-  return request(`/beds/${hospitalId}/${category}`, {
+  return request(`/beds/${encodeURIComponent(hospitalId)}/${encodeURIComponent(category)}`, {
     method: "POST",
     body: JSON.stringify({ delta }),
   });

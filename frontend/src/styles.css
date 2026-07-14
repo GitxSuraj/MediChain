@@ -131,6 +131,192 @@ nav {
   color: #5b6575;
 }
 
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+  color: #384357;
+  font-weight: 700;
+}
+
+.field span {
+  font-size: 0.9rem;
+}
+
+.field select {
+  min-height: 42px;
+  min-width: 220px;
+  border: 1px solid #ccd6e3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1d2633;
+  padding: 0 10px;
+}
+
+.hospital-selector {
+  flex: 1;
+  max-width: 540px;
+}
+
+.secondary-button {
+  min-height: 42px;
+  border: 1px solid #b8c5d6;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1d2633;
+  padding: 0 14px;
+  font-weight: 700;
+}
+
+.secondary-button:disabled,
+.control-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.alert,
+.empty-state {
+  margin: 14px 0;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.alert.error {
+  border: 1px solid #f2b5b5;
+  background: #fff1f1;
+  color: #9f1f1f;
+}
+
+.alert.success {
+  border: 1px solid #a6dcb8;
+  background: #edf9f1;
+  color: #166534;
+}
+
+.empty-state {
+  border: 1px solid #d5deea;
+  background: #ffffff;
+  color: #5b6575;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.hospital-panel,
+.controller-panel {
+  display: grid;
+  gap: 20px;
+  border: 1px solid #dce4ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.hospital-panel h3,
+.controller-panel h3 {
+  margin: 0;
+}
+
+.hospital-panel p {
+  margin: 4px 0 0;
+  color: #5b6575;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  border-radius: 999px;
+  background: #e8f7f5;
+  color: #16736c;
+  padding: 5px 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.bed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.bed-tile {
+  display: grid;
+  gap: 8px;
+  min-height: 92px;
+  border: 1px solid #d5deea;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1d2633;
+  padding: 14px;
+  text-align: left;
+}
+
+.bed-tile.selected {
+  border-color: #16736c;
+  background: #e8f7f5;
+}
+
+.bed-tile span {
+  color: #5b6575;
+  font-size: 0.92rem;
+}
+
+.bed-tile strong {
+  font-size: 1.35rem;
+}
+
+.availability-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.availability-readout span {
+  color: #5b6575;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.control-button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.control-button.decrease {
+  background: #b42318;
+}
+
+.control-button.increase {
+  background: #16736c;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -142,5 +328,24 @@ nav {
 
   .content {
     padding: 24px 18px;
+  }
+
+  .toolbar,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    display: grid;
+  }
+
+  .hospital-selector,
+  .field select {
+    max-width: none;
+    width: 100%;
+  }
+
+  .bed-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
