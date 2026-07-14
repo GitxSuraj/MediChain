@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -22,3 +24,11 @@ class HospitalSeed(BaseModel):
 
 class HospitalResponse(HospitalSeed):
     id: str
+
+
+class BedUpdateRequest(BaseModel):
+    delta: Literal[-1, 1]
+
+
+class BedUpdateResponse(BaseModel):
+    hospital: HospitalResponse

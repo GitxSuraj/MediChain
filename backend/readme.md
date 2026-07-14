@@ -58,3 +58,16 @@ Filter by facility and city:
 ```http
 GET /hospitals?facility=ICU&city=Delhi
 ```
+
+Update bed availability:
+
+```http
+POST /beds/{hospital_id}/{category}
+Content-Type: application/json
+
+{
+  "delta": -1
+}
+```
+
+Supported bed categories are `general`, `icu`, `oxygen`, and `emergency`. The API prevents available beds from going below `0` or above the category total.
