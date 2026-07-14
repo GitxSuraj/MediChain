@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routes.hospitals import router as hospitals_router
+
 
 app = FastAPI(
     title="Hospital Network API",
@@ -22,8 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(hospitals_router)
+
 
 @app.get("/")
 def read_root():
     return {"status": "Hospital Network API running"}
-
