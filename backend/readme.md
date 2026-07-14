@@ -81,3 +81,14 @@ ws://localhost:8000/ws
 ```
 
 The server sends a `connection_established` event when a client connects. Clients can send `{"event": "ping"}` and receive `{"event": "pong"}`. Broadcast events are handled by the shared connection manager and will be used by bed updates in the next milestone.
+
+Successful bed updates broadcast this event to all connected WebSocket clients:
+
+```json
+{
+  "event": "bed_update",
+  "hospital_id": "65f...",
+  "category": "icu",
+  "new_available_count": 4
+}
+```

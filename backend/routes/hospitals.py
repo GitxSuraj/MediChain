@@ -5,6 +5,7 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 from database.hospitals import (
     BedAvailabilityError,
+    BED_CATEGORIES,
     HospitalNotFoundError,
     InvalidBedCategoryError,
     InvalidHospitalIdError,
@@ -12,7 +13,8 @@ from database.hospitals import (
     update_bed_availability,
 )
 from database.mongodb import MONGODB_UNAVAILABLE_MESSAGE
-from models.hospital import BedUpdateRequest, BedUpdateResponse, HospitalResponse
+from models.hospital import BedUpdateEvent, BedUpdateRequest, BedUpdateResponse, HospitalResponse
+from realtime.connection_manager import manager
 
 
 router = APIRouter()
@@ -38,15 +40,17 @@ def get_hospitals(
 
 
 @router.post("/beds/{hospital_id}/{category}", response_model=BedUpdateResponse)
-def update_hospital_beds(
+async def update_hospital_beds(
     hospital_id: str,
     category: str,
     payload: BedUpdateRequest,
 ):
+    normalized_category = category.strip().lower()
+
     try:
         hospital = update_bed_availability(
             hospital_id=hospital_id,
-            category=category,
+            category=normalized_category,
             delta=payload.delta,
         )
     except InvalidHospitalIdError as exc:
@@ -67,5 +71,13 @@ def update_hospital_beds(
             status_code=500,
             detail=f"MongoDB update failed: {exc}",
         ) from exc
+
+    if normalized_category in BED_CATEGORIES:
+        event = BedUpdateEvent(
+            hospital_id=hospital["id"],
+            category=normalized_category,
+            new_available_count=hospital["beds"][normalized_category]["available"],
+        )
+        await manager.broadcast(event.model_dump())
 
     return {"hospital": hospital}

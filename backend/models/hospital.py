@@ -32,3 +32,10 @@ class BedUpdateRequest(BaseModel):
 
 class BedUpdateResponse(BaseModel):
     hospital: HospitalResponse
+
+
+class BedUpdateEvent(BaseModel):
+    event: Literal["bed_update"] = "bed_update"
+    hospital_id: str
+    category: Literal["general", "icu", "oxygen", "emergency"]
+    new_available_count: int = Field(ge=0)
