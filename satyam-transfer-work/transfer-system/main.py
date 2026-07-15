@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 # ---- MongoDB connection ----
-MONGO_URI = "mongodb+srv://twistersatyam_medichain:MiGFuNcqfMjlZkdT@cluster0.z8irybe.mongodb.net/?appName=Cluster0"
+MONGO_URI = "URI"
 client = MongoClient(MONGO_URI)
 db = client["hospital_network"]
 transfers_collection = db["transfers"]
