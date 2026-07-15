@@ -35,3 +35,7 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+satyam-transfer-work/transfer-system/venv/
+satyam-transfer-work/transfer-ui/node_modules/
+satyam-transfer-work/transfer-system/.env
+
