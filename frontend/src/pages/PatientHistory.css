@@ -1,0 +1,284 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Welcome Banner — animated hero */
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--color-navy-950), var(--color-teal-600) 130%);
+  color: var(--color-text-inverse);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.welcome-banner__orb--1 {
+  width: 220px;
+  height: 220px;
+  background: var(--color-violet-400);
+  top: -90px;
+  right: 60px;
+  animation: orbit-drift 10s ease-in-out infinite alternate;
+}
+
+.welcome-banner__orb--2 {
+  width: 160px;
+  height: 160px;
+  background: var(--color-teal-400);
+  bottom: -70px;
+  right: -30px;
+  animation: orbit-drift 13s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orbit-drift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-22px, 18px); }
+}
+
+.welcome-banner__text {
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-banner__text h2 {
+  font-size: 1.5rem;
+  color: var(--color-text-inverse);
+}
+
+.welcome-banner__text p {
+  margin-top: 4px;
+  color: rgba(244, 247, 251, 0.75);
+  font-size: 0.9rem;
+}
+
+/* Animated EKG pulse line — signature element */
+.welcome-banner__ekg {
+  position: absolute;
+  left: 34%;
+  right: 190px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60px;
+  z-index: 1;
+  opacity: 0.55;
+}
+
+.welcome-banner__ekg-path {
+  stroke: var(--color-teal-400);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 700;
+  stroke-dashoffset: 700;
+  animation: ekg-draw 4.5s linear infinite;
+}
+
+@keyframes ekg-draw {
+  0% { stroke-dashoffset: 700; }
+  60% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -700; }
+}
+
+.welcome-banner__id {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.welcome-banner__id-label {
+  font-size: 0.68rem;
+  color: rgba(244, 247, 251, 0.6);
+  letter-spacing: 0.05em;
+}
+
+.welcome-banner__id-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-teal-400);
+}
+
+/* Sections */
+.dashboard__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dashboard__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard__section-header h3 {
+  font-size: 1.05rem;
+}
+
+.dashboard__section-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-teal-600);
+  transition: opacity var(--transition-fast);
+}
+.dashboard__section-link:hover {
+  opacity: 0.7;
+}
+
+.dashboard__metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.dashboard__two-col {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.dashboard__quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dashboard__hospitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.dashboard__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+.dashboard__empty p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.dashboard__history-list {
+  padding: var(--space-2) var(--space-5);
+}
+
+.history-row {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+.history-row:last-child {
+  border-bottom: none;
+}
+.history-row:hover {
+  background: var(--color-surface-alt);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+  margin: 0 calc(var(--space-2) * -1);
+}
+
+.history-row__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.history-row__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-row__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.history-row__title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--color-text-primary);
+}
+
+.history-row__date {
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+}
+
+.history-row__summary {
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.history-row__doctor {
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+  margin-top: 4px;
+  display: inline-block;
+}
+
+/* Skeletons */
+.skeleton {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 37%, var(--color-surface-alt) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.skeleton--metric { height: 88px; }
+.skeleton--card { height: 140px; }
+.skeleton--hospital { height: 260px; }
+.skeleton--history { height: 200px; }
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .dashboard__metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard__two-col { grid-template-columns: 1fr; }
+  .dashboard__hospitals-grid { grid-template-columns: repeat(2, 1fr); }
+  .welcome-banner__ekg { display: none; }
+}
+
+@media (max-width: 640px) {
+  .welcome-banner { flex-direction: column; align-items: flex-start; }
+  .welcome-banner__id { align-items: flex-start; }
+  .dashboard__metrics-grid { grid-template-columns: 1fr; }
+  .dashboard__hospitals-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-banner__ekg-path,
+  .welcome-banner__orb--1,
+  .welcome-banner__orb--2 {
+    animation: none;
+  }
+}

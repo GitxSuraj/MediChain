@@ -1,0 +1,175 @@
+.medical-timeline-item {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.medical-timeline-item__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--space-5);
+}
+
+.medical-timeline-item__dot {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--color-white);
+  box-shadow: 0 0 0 1.5px var(--color-border-strong);
+}
+
+.medical-timeline-item__dot--teal { background: var(--color-teal-100); color: var(--color-teal-600); }
+.medical-timeline-item__dot--violet { background: var(--color-violet-100); color: var(--color-violet-600); }
+.medical-timeline-item__dot--amber { background: var(--color-amber-100); color: var(--color-amber-500); }
+.medical-timeline-item__dot--coral { background: var(--color-coral-100); color: var(--color-coral-600); }
+
+.medical-timeline-item__line {
+  width: 2px;
+  flex: 1;
+  background: var(--color-border-strong);
+  margin: 6px 0;
+  min-height: 30px;
+}
+
+.medical-timeline-item__card {
+  flex: 1;
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.medical-timeline-item__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.medical-timeline-item__header h4 {
+  font-size: 0.98rem;
+  margin-top: 6px;
+}
+
+.medical-timeline-item__type-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+.medical-timeline-item__type-tag--teal { background: var(--color-teal-100); color: var(--color-teal-600); }
+.medical-timeline-item__type-tag--violet { background: var(--color-violet-100); color: var(--color-violet-600); }
+.medical-timeline-item__type-tag--amber { background: var(--color-amber-100); color: var(--color-amber-500); }
+.medical-timeline-item__type-tag--coral { background: var(--color-coral-100); color: var(--color-coral-600); }
+
+.medical-timeline-item__date {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.medical-timeline-item__meta {
+  font-size: 0.8rem;
+  margin-top: var(--space-2);
+}
+
+.medical-timeline-item__summary {
+  font-size: 0.87rem;
+  margin-top: var(--space-2);
+  line-height: 1.55;
+  color: var(--color-text-primary);
+}
+
+.medical-timeline-item__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-4);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-teal-600);
+}
+.medical-timeline-item__toggle:hover {
+  opacity: 0.75;
+}
+
+/* Lab table */
+.medical-timeline-item__lab-table {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.lab-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--space-3);
+  padding: 10px var(--space-4);
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.lab-row:last-child {
+  border-bottom: none;
+}
+
+.lab-row--head {
+  background: var(--color-surface);
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lab-row--high span:nth-child(2) { color: var(--color-coral-600); font-weight: 700; }
+.lab-row--low span:nth-child(2) { color: var(--color-amber-500); font-weight: 700; }
+.lab-row--normal span:nth-child(2) { color: var(--color-success); font-weight: 600; }
+
+/* Prescription list */
+.medical-timeline-item__rx-list {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rx-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 0.8fr;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  align-items: center;
+}
+
+.rx-row__medicine {
+  font-weight: 600;
+}
+
+.rx-row__duration {
+  color: var(--color-teal-600);
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .medical-timeline-item__rail {
+    display: none;
+  }
+  .lab-row,
+  .rx-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .rx-row__duration {
+    text-align: left;
+  }
+}

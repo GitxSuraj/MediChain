@@ -1,0 +1,3 @@
+/* Reserved for App-level overrides. Page/layout styling lives in
+   component-scoped CSS files (Sidebar.css, Navbar.css, PatientLayout.css,
+   and each page's own .css file) to keep this file minimal. */
