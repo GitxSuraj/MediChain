@@ -6,6 +6,7 @@ const bedLabels = {
 };
 
 export default function HospitalCard({ hospital }) {
+  console.log(hospital);
   return (
     <article className="patient-card">
       <div className="patient-card-header">
@@ -16,11 +17,11 @@ export default function HospitalCard({ hospital }) {
       </div>
 
       <div className="tag-row">
-        {hospital.facilities.map((facility) => (
-          <span className="tag" key={facility}>
-            {facility}
-          </span>
-        ))}
+        {(hospital.facilities || []).map((facility) => (
+  <span className="tag" key={facility}>
+    {facility}
+  </span>
+))}
       </div>
 
       <div className="patient-bed-grid" aria-label={`${hospital.name} bed availability`}>

@@ -41,4 +41,22 @@ export function updateBedAvailability(hospitalId, category, delta) {
   });
 }
 
+export function createTransfer(payload) {
+  return request("/transfers", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function respondToTransfer(transferId, status) {
+  return request(`/transfers/${encodeURIComponent(transferId)}/respond`, {
+    method: "POST",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function getPatient(patientId) {
+  return request(`/patients/${encodeURIComponent(patientId)}`);
+}
+
 export { API_BASE_URL };

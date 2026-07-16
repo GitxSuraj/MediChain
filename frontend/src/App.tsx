@@ -9,6 +9,7 @@ import BookAppointment from './pages/BookAppointment';
 import AppointmentStatus from './pages/AppointmentStatus';
 import PatientHistory from './pages/PatientHistory';
 import HospitalDirectory from './pages/HospitalDirectory';
+import AdminDashboard from './pages/AdminDashboard.jsx';
 import './App.css';
 
 function App() {
@@ -16,6 +17,9 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* Admin / Hospital staff view — bed system + transfer system (no patient auth required) */}
+        <Route path="/admin" element={<AdminDashboard />} />
 
         <Route
           path="/dashboard"
