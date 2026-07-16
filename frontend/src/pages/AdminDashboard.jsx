@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
+import "../styles.css";
 import BedCategorySummary from "../components/BedCategorySummary.jsx";
 import BedController from "../components/BedController.jsx";
+import TransferPanel from "../components/TransferPanel.jsx";
 import { getHospitals, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
 
@@ -180,6 +182,8 @@ export default function AdminDashboard() {
           />
         </div>
       ) : null}
+
+      <TransferPanel />
     </section>
   );
 }

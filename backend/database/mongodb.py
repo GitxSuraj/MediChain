@@ -9,8 +9,8 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
-DEFAULT_MONGO_URI = "mongodb://localhost:27017"
-DEFAULT_DATABASE_NAME = "medichain"
+DEFAULT_MONGO_URI = "mongodb+srv://twistersatyam_medichain:MiGFuNcqfMjlZkdT@cluster0.z8irybe.mongodb.net/?appName=Cluster0"
+DEFAULT_DATABASE_NAME = "hospital_network"
 MONGODB_UNAVAILABLE_MESSAGE = (
     "MongoDB connection requires a running MongoDB instance. "
     "Check MONGO_URI and start MongoDB before retrying."

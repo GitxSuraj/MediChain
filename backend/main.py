@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes.hospitals import router as hospitals_router
 from routes.realtime import router as realtime_router
+from routes.transfers import router as transfers_router
 
 
 app = FastAPI(
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(hospitals_router)
+app.include_router(transfers_router)
 app.include_router(realtime_router)
 
 
