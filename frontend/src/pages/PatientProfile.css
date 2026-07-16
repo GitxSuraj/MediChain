@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding-bottom: 90px; /* room for sticky save bar */
+  padding-bottom: 90px; /* room for floating save bar */
 }
 
 /* Header */
@@ -120,27 +120,32 @@
   margin-top: var(--space-5);
 }
 
-/* Save bar */
+/* Floating save bar — no longer tied to sidebar width */
 .profile-save-bar {
   position: fixed;
-  bottom: 0;
-  left: var(--sidebar-width);
-  right: 0;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4) var(--space-8);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--color-border);
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+  background: var(--color-navy-950);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
   z-index: 60;
-  transition: left var(--transition-base);
+  animation: fadeInUp var(--transition-slow) both;
 }
 
 .profile-save-bar__status {
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  font-size: 0.83rem;
+  color: rgba(244, 247, 251, 0.7);
+  white-space: nowrap;
+}
+
+.profile-save-bar .btn-primary {
+  padding: 10px 22px;
 }
 
 @media (max-width: 1100px) {
@@ -149,10 +154,13 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .profile-save-bar {
-    left: 0;
-    padding: var(--space-4) var(--space-5);
+    left: var(--space-4);
+    right: var(--space-4);
+    transform: none;
+    justify-content: space-between;
+    bottom: var(--space-4);
   }
   .profile-section__grid,
   .profile-section__tags {

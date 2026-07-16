@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import './DashboardCard.css';
 import type { HealthMetric } from '../services/patient';
 
@@ -36,10 +37,13 @@ interface DashboardCardProps {
 }
 
 export default function DashboardCard({ metric, index = 0 }: DashboardCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <div
+    <button
       className={`dashboard-card dashboard-card--${metric.status}`}
       style={{ animationDelay: `${index * 60}ms` }}
+      onClick={() => navigate('/medical-history')}
     >
       <div className="dashboard-card__icon">{METRIC_ICONS[metric.icon]}</div>
       <div className="dashboard-card__body">
@@ -52,6 +56,7 @@ export default function DashboardCard({ metric, index = 0 }: DashboardCardProps)
       <span className={`dashboard-card__trend dashboard-card__trend--${metric.trend}`}>
         {TREND_ICON[metric.trend]}
       </span>
-    </div>
+      <span className="dashboard-card__hover-hint">View history →</span>
+    </button>
   );
 }

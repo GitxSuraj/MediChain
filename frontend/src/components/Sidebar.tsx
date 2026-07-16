@@ -58,10 +58,11 @@ const NAV_ITEMS: NavItem[] = [
 
 interface SidebarProps {
   onLogout: () => void;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-export default function Sidebar({ onLogout }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export default function Sidebar({ onLogout, collapsed, onToggleCollapse }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -112,7 +113,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           </button>
           <button
             className="sidebar__collapse-btn"
-            onClick={() => setCollapsed((v) => !v)}
+            onClick={onToggleCollapse}
             aria-label="Collapse sidebar"
           >
             <svg

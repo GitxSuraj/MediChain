@@ -16,13 +16,31 @@ export interface HealthMetric {
   status: 'normal' | 'watch' | 'alert';
 }
 
+export type MedicalHistoryType = 'Consultation' | 'Lab Report' | 'Prescription' | 'Procedure';
+
+export interface LabValue {
+  parameter: string;
+  value: string;
+  referenceRange: string;
+  flag: 'normal' | 'high' | 'low';
+}
+
+export interface PrescriptionItem {
+  medicine: string;
+  dosage: string;
+  duration: string;
+}
+
 export interface MedicalHistoryEntry {
   id: string;
   date: string;
-  type: 'Consultation' | 'Lab Report' | 'Prescription' | 'Procedure';
+  type: MedicalHistoryType;
   title: string;
   doctor: string;
+  hospital: string;
   summary: string;
+  labValues?: LabValue[];
+  prescriptionItems?: PrescriptionItem[];
 }
 
 export interface EmergencyContact {
@@ -51,9 +69,88 @@ const MOCK_HEALTH_SUMMARY: HealthMetric[] = [
 ];
 
 const MOCK_HISTORY: MedicalHistoryEntry[] = [
-  { id: 'h1', date: '2026-07-02', type: 'Lab Report', title: 'Complete Blood Count', doctor: 'Dr. Rhea Kapoor', summary: 'All parameters within normal range.' },
-  { id: 'h2', date: '2026-06-18', type: 'Consultation', title: 'General Checkup', doctor: 'Dr. Vikram Nair', summary: 'Routine follow-up, no concerns raised.' },
-  { id: 'h3', date: '2026-05-27', type: 'Prescription', title: 'Antihistamine course', doctor: 'Dr. Rhea Kapoor', summary: '5-day course for seasonal allergies.' },
+  {
+    id: 'h1',
+    date: '2026-07-02',
+    type: 'Lab Report',
+    title: 'Complete Blood Count',
+    doctor: 'Dr. Rhea Kapoor',
+    hospital: 'Fortis Escorts Heart Institute',
+    summary: 'All parameters within normal range.',
+    labValues: [
+      { parameter: 'Hemoglobin', value: '13.8 g/dL', referenceRange: '13.0–17.0', flag: 'normal' },
+      { parameter: 'WBC Count', value: '7,200 /µL', referenceRange: '4,000–11,000', flag: 'normal' },
+      { parameter: 'Platelet Count', value: '410,000 /µL', referenceRange: '150,000–450,000', flag: 'normal' },
+    ],
+  },
+  {
+    id: 'h2',
+    date: '2026-06-18',
+    type: 'Consultation',
+    title: 'General Checkup',
+    doctor: 'Dr. Vikram Nair',
+    hospital: 'Apollo Hospital, Noida',
+    summary: 'Routine follow-up, no concerns raised. Advised to continue current lifestyle and re-check in 6 months.',
+  },
+  {
+    id: 'h3',
+    date: '2026-05-27',
+    type: 'Prescription',
+    title: 'Antihistamine course',
+    doctor: 'Dr. Rhea Kapoor',
+    hospital: 'Fortis Escorts Heart Institute',
+    summary: '5-day course prescribed for seasonal allergic rhinitis.',
+    prescriptionItems: [
+      { medicine: 'Cetirizine 10mg', dosage: '1 tablet, once daily (night)', duration: '5 days' },
+      { medicine: 'Fluticasone Nasal Spray', dosage: '2 sprays each nostril, once daily', duration: '10 days' },
+    ],
+  },
+  {
+    id: 'h4',
+    date: '2026-05-14',
+    type: 'Consultation',
+    title: 'Pediatric Follow-up',
+    doctor: 'Dr. Priya Menon',
+    hospital: 'Apollo Hospital, Noida',
+    summary: 'Follow-up on seasonal allergy medication response. Symptoms improved significantly.',
+  },
+  {
+    id: 'h5',
+    date: '2026-04-09',
+    type: 'Lab Report',
+    title: 'Fasting Lipid Profile',
+    doctor: 'Dr. Vikram Nair',
+    hospital: 'Apollo Hospital, Noida',
+    summary: 'LDL cholesterol slightly elevated; dietary adjustment recommended.',
+    labValues: [
+      { parameter: 'Total Cholesterol', value: '198 mg/dL', referenceRange: '< 200', flag: 'normal' },
+      { parameter: 'LDL Cholesterol', value: '132 mg/dL', referenceRange: '< 100', flag: 'high' },
+      { parameter: 'HDL Cholesterol', value: '52 mg/dL', referenceRange: '> 40', flag: 'normal' },
+      { parameter: 'Triglycerides', value: '138 mg/dL', referenceRange: '< 150', flag: 'normal' },
+    ],
+  },
+  {
+    id: 'h6',
+    date: '2026-02-21',
+    type: 'Procedure',
+    title: 'Echocardiogram (2D Echo)',
+    doctor: 'Dr. Rhea Kapoor',
+    hospital: 'Fortis Escorts Heart Institute',
+    summary: 'Ejection fraction normal at 62%. No structural abnormalities detected. Routine screening, no follow-up required.',
+  },
+  {
+    id: 'h7',
+    date: '2025-12-11',
+    type: 'Prescription',
+    title: 'Post-viral fatigue management',
+    doctor: 'Dr. Vikram Nair',
+    hospital: 'Apollo Hospital, Noida',
+    summary: 'Supportive care prescribed following viral fever.',
+    prescriptionItems: [
+      { medicine: 'Paracetamol 650mg', dosage: 'As needed for fever, max 3/day', duration: '5 days' },
+      { medicine: 'Multivitamin', dosage: '1 tablet, once daily', duration: '30 days' },
+    ],
+  },
 ];
 
 let MOCK_PROFILE: PatientProfile = {
@@ -85,7 +182,14 @@ export async function getRecentMedicalHistory(
   _patientId: string,
   limit: number = 3
 ): Promise<MedicalHistoryEntry[]> {
-  return delay(MOCK_HISTORY.slice(0, limit));
+  const sorted = [...MOCK_HISTORY].sort((a, b) => b.date.localeCompare(a.date));
+  return delay(sorted.slice(0, limit));
+}
+
+/** TODO(API): GET /api/patients/:id/history/full */
+export async function getFullMedicalHistory(_patientId: string): Promise<MedicalHistoryEntry[]> {
+  const sorted = [...MOCK_HISTORY].sort((a, b) => b.date.localeCompare(a.date));
+  return delay(sorted);
 }
 
 /** TODO(API): GET /api/patients/:id/profile */

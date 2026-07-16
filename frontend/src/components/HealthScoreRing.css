@@ -1,0 +1,101 @@
+.health-score-ring {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base);
+}
+
+.health-score-ring:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.health-score-ring__visual {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+}
+
+.health-score-ring__svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.health-score-ring__track {
+  fill: none;
+  stroke: var(--color-surface-alt);
+  stroke-width: 10;
+}
+
+.health-score-ring__progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.3s var(--ease-out);
+}
+
+.health-score-ring__progress--excellent { stroke: url(#none); stroke: var(--color-teal-500); }
+.health-score-ring__progress--good { stroke: var(--color-violet-500); }
+.health-score-ring__progress--watch { stroke: var(--color-amber-500); }
+
+.health-score-ring__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.health-score-ring__value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.health-score-ring__max {
+  font-size: 0.68rem;
+  color: var(--color-text-tertiary);
+  margin-top: 2px;
+}
+
+.health-score-ring__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-score-ring__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.health-score-ring__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.health-score-ring__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.health-score-ring__status--excellent { color: var(--color-teal-600); }
+.health-score-ring__status--excellent .health-score-ring__status-dot { background: var(--color-teal-500); }
+.health-score-ring__status--good { color: var(--color-violet-600); }
+.health-score-ring__status--good .health-score-ring__status-dot { background: var(--color-violet-500); }
+.health-score-ring__status--watch { color: var(--color-amber-500); }
+.health-score-ring__status--watch .health-score-ring__status-dot { background: var(--color-amber-500); }
