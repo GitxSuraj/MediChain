@@ -30,3 +30,19 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+# Frontend
+
+React + Vite frontend for the MediChain hospital network application.
+
+## Setup
+
+```powershell
+npm install
+npm run dev
+```
+
+Create `.env` from `.env.example` when the backend is not running on `http://localhost:8000`.
+
+```env
+VITE_API_URL=http://localhost:8000
+```
