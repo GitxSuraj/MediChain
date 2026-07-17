@@ -9,6 +9,37 @@ import { createRealtimeSocket } from "../websocket/socket.js";
 
 const defaultCategory = "icu";
 
+// Doctor directory — keyed by the real hospital names seeded in MongoDB
+// (backend/scripts/seed_hospitals.py). Purely for admin display, no backend
+// changes needed. Edit/add names here freely.
+const DOCTORS_BY_HOSPITAL = {
+  "CityCare General Hospital": [
+    { name: "Dr. Ramesh Iyer", specialty: "Emergency Medicine" },
+    { name: "Dr. Sunita Rao", specialty: "ICU Intensivist" },
+    { name: "Dr. Anil Bose", specialty: "General Physician" },
+  ],
+  "Lotus Multispeciality Center": [
+    { name: "Dr. Farah Sheikh", specialty: "Cardiologist" },
+    { name: "Dr. Vivek Nanda", specialty: "ICU Intensivist" },
+    { name: "Dr. Kriti Sharma", specialty: "Diagnostics" },
+  ],
+  "Sunrise Trauma Institute": [
+    { name: "Dr. Rohan Bakshi", specialty: "Trauma Surgeon" },
+    { name: "Dr. Meenal Joshi", specialty: "Emergency Medicine" },
+    { name: "Dr. Salim Khan", specialty: "Blood Bank Specialist" },
+  ],
+  "Green Valley Women's Hospital": [
+    { name: "Dr. Ayesha Kapoor", specialty: "Obstetrician" },
+    { name: "Dr. Neel Verma", specialty: "Neonatal ICU" },
+    { name: "Dr. Priyanka Das", specialty: "Gynecologist" },
+  ],
+  "NorthStar Children's Medical": [
+    { name: "Dr. Karan Mehta", specialty: "Pediatrician" },
+    { name: "Dr. Ila Chandran", specialty: "Pediatric ICU" },
+    { name: "Dr. Yusuf Ansari", specialty: "Emergency Medicine" },
+  ],
+};
+
 export default function AdminDashboard() {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
@@ -22,6 +53,23 @@ export default function AdminDashboard() {
     () => hospitals.find((hospital) => hospital.id === selectedHospitalId),
     [hospitals, selectedHospitalId],
   );
+
+  const selectedHospitalDoctors = selectedHospital
+    ? DOCTORS_BY_HOSPITAL[selectedHospital.name] || []
+    : [];
+
+  const networkStats = useMemo(() => {
+    return hospitals.reduce(
+      (acc, h) => {
+        acc.totalGeneral += h.beds?.general?.available ?? 0;
+        acc.totalIcu += h.beds?.icu?.available ?? 0;
+        acc.totalOxygen += h.beds?.oxygen?.available ?? 0;
+        acc.totalEmergency += h.beds?.emergency?.available ?? 0;
+        return acc;
+      },
+      { totalGeneral: 0, totalIcu: 0, totalOxygen: 0, totalEmergency: 0 },
+    );
+  }, [hospitals]);
 
   useEffect(() => {
     loadHospitals();
@@ -110,6 +158,27 @@ export default function AdminDashboard() {
         <p>Select a hospital, review live availability, and adjust bed counts for the demo flow.</p>
       </div>
 
+      {!loading && hospitals.length > 0 ? (
+        <div className="stat-row">
+          <div className="stat-card">
+            <p className="stat-label">Hospitals in Network</p>
+            <p className="stat-value">{hospitals.length}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">ICU Beds Available</p>
+            <p className="stat-value">{networkStats.totalIcu}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">General Beds Available</p>
+            <p className="stat-value">{networkStats.totalGeneral}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Oxygen Beds Available</p>
+            <p className="stat-value">{networkStats.totalOxygen}</p>
+          </div>
+        </div>
+      ) : null}
+
       <div className="toolbar">
         <label className="field hospital-selector">
           <span>Hospital</span>
@@ -166,6 +235,21 @@ export default function AdminDashboard() {
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
             />
+
+            <div>
+              <p className="eyebrow" style={{ marginTop: "4px" }}>On-Duty Doctors</p>
+              {selectedHospitalDoctors.length === 0 ? (
+                <p style={{ color: "#5b6575" }}>No doctor roster added for this hospital yet.</p>
+              ) : (
+                <div className="tag-row">
+                  {selectedHospitalDoctors.map((doc) => (
+                    <span className="tag" key={doc.name}>
+                      {doc.name} · {doc.specialty}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
 
           <BedController

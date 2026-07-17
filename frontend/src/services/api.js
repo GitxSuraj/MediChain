@@ -55,6 +55,10 @@ export function respondToTransfer(transferId, status) {
   });
 }
 
+export function getPatients() {
+  return request("/patients");
+}
+
 export function getPatient(patientId) {
   return request(`/patients/${encodeURIComponent(patientId)}`);
 }

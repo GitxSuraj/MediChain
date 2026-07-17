@@ -17,6 +17,14 @@ def create_transfer(data: dict) -> dict:
     return data
 
 
+def get_transfer_by_id(transfer_id: str) -> dict | None:
+    collection = get_transfers_collection()
+    transfer = collection.find_one({"_id": ObjectId(transfer_id)})
+    if transfer:
+        transfer["_id"] = str(transfer["_id"])
+    return transfer
+
+
 def update_transfer_status(transfer_id: str, status: str) -> None:
     collection = get_transfers_collection()
     collection.update_one({"_id": ObjectId(transfer_id)}, {"$set": {"status": status}})
@@ -28,3 +36,20 @@ def get_patient_by_id(patient_id: str) -> dict | None:
     if patient:
         patient["_id"] = str(patient["_id"])
     return patient
+
+
+def get_all_patients() -> list[dict]:
+    collection = get_patients_collection()
+    patients = list(collection.find())
+    for p in patients:
+        p["_id"] = str(p["_id"])
+        p.setdefault("current_hospital", "Unassigned")
+    return patients
+
+
+def update_patient_hospital(patient_id: str, hospital_name: str) -> None:
+    collection = get_patients_collection()
+    collection.update_one(
+        {"_id": ObjectId(patient_id)},
+        {"$set": {"current_hospital": hospital_name}},
+    )

@@ -1,10 +1,20 @@
 :root {
-  color: #1d2633;
-  background: #f5f7fa;
+  color: #1a2130;
+  background: #eef1f6;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
+  --brand: #0f766e;
+  --brand-dark: #0a2a4d;
+  --brand-light: #e6f6f4;
+  --danger: #d33b3b;
+  --danger-light: #fdeeee;
+  --success: #1a8f5c;
+  --success-light: #e9f9f0;
+  --border: #dde3ec;
+  --shadow-sm: 0 1px 2px rgba(16, 35, 63, 0.06);
+  --shadow-md: 0 6px 20px rgba(16, 35, 63, 0.08);
 }
 
 * {
@@ -25,6 +35,7 @@ select {
 
 button {
   cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
 .app-shell {
@@ -39,8 +50,9 @@ button {
   gap: 32px;
   justify-content: space-between;
   padding: 28px 20px;
-  background: #10233f;
+  background: linear-gradient(180deg, var(--brand-dark) 0%, #0d3358 100%);
   color: #ffffff;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
 }
 
 .sidebar h1,
@@ -48,12 +60,17 @@ button {
   margin: 0;
 }
 
+.page h2 {
+  font-size: 1.7rem;
+  letter-spacing: -0.01em;
+}
+
 .eyebrow {
   margin: 0 0 6px;
-  color: #64d2c8;
+  color: #5eead4;
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
@@ -65,17 +82,19 @@ nav {
 .nav-item {
   width: 100%;
   padding: 11px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
   background: transparent;
   color: #dbe7f5;
   text-align: left;
+  font-weight: 600;
 }
 
 .nav-item.active,
 .nav-item:hover {
   background: #ffffff;
-  color: #10233f;
+  color: var(--brand-dark);
+  border-color: #ffffff;
 }
 
 .status-stack {
@@ -89,8 +108,8 @@ nav {
   gap: 8px;
   min-height: 36px;
   padding: 8px 10px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
   color: #dbe7f5;
   font-size: 0.9rem;
 }
@@ -101,24 +120,27 @@ nav {
   border-radius: 999px;
   background: #f0b429;
   flex: 0 0 auto;
+  box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.2);
 }
 
 .status-line.connected .status-dot {
   background: #35c46d;
+  box-shadow: 0 0 0 3px rgba(53, 196, 109, 0.22);
 }
 
 .status-line.error .status-dot,
 .status-line.disconnected .status-dot {
   background: #ef5b5b;
+  box-shadow: 0 0 0 3px rgba(239, 91, 91, 0.2);
 }
 
 .content {
   min-width: 0;
-  padding: 36px;
+  padding: 36px 40px;
 }
 
 .page {
-  max-width: 1120px;
+  max-width: 1180px;
 }
 
 .page-header {
@@ -146,17 +168,29 @@ nav {
 }
 
 .field span {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #6b7688;
 }
 
-.field select {
-  min-height: 42px;
+.field select,
+.field input {
+  min-height: 44px;
   min-width: 220px;
-  border: 1px solid #ccd6e3;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: #ffffff;
-  color: #1d2633;
-  padding: 0 10px;
+  color: #1a2130;
+  padding: 0 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field select:focus,
+.field input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-light);
 }
 
 .hospital-selector {
@@ -165,44 +199,91 @@ nav {
 }
 
 .secondary-button {
-  min-height: 42px;
-  border: 1px solid #b8c5d6;
-  border-radius: 6px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: #ffffff;
-  color: #1d2633;
-  padding: 0 14px;
+  color: #1a2130;
+  padding: 0 16px;
   font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.secondary-button:hover:not(:disabled) {
+  border-color: var(--brand);
+  color: var(--brand);
+  box-shadow: var(--shadow-md);
+}
+
+.secondary-button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .secondary-button:disabled,
 .control-button:disabled {
   cursor: not-allowed;
-  opacity: 0.58;
+  opacity: 0.5;
 }
 
 .alert,
 .empty-state {
   margin: 14px 0;
-  border-radius: 6px;
-  padding: 12px 14px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
 }
 
 .alert.error {
   border: 1px solid #f2b5b5;
-  background: #fff1f1;
+  background: var(--danger-light);
   color: #9f1f1f;
 }
 
 .alert.success {
   border: 1px solid #a6dcb8;
-  background: #edf9f1;
+  background: var(--success-light);
   color: #166534;
 }
 
 .empty-state {
-  border: 1px solid #d5deea;
+  border: 1px dashed var(--border);
   background: #ffffff;
   color: #5b6575;
+  font-weight: 500;
+  text-align: center;
+  padding: 28px 16px;
+}
+
+/* Overview stat cards (used on Admin Dashboard) */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+}
+
+.stat-card .stat-label {
+  margin: 0 0 6px;
+  color: #6b7688;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-card .stat-value {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--brand-dark);
 }
 
 .admin-grid {
@@ -216,15 +297,17 @@ nav {
 .controller-panel {
   display: grid;
   gap: 20px;
-  border: 1px solid #dce4ee;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: #ffffff;
-  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
 }
 
 .hospital-panel h3,
 .controller-panel h3 {
   margin: 0;
+  font-size: 1.15rem;
 }
 
 .hospital-panel p {
@@ -240,10 +323,10 @@ nav {
 
 .tag {
   border-radius: 999px;
-  background: #e8f7f5;
-  color: #16736c;
-  padding: 5px 10px;
-  font-size: 0.86rem;
+  background: var(--brand-light);
+  color: var(--brand);
+  padding: 5px 12px;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -257,26 +340,32 @@ nav {
   display: grid;
   gap: 8px;
   min-height: 92px;
-  border: 1px solid #d5deea;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   background: #f8fafc;
-  color: #1d2633;
+  color: #1a2130;
   padding: 14px;
   text-align: left;
+  transition: border-color 0.15s ease, transform 0.08s ease;
+}
+
+.bed-tile:hover {
+  border-color: var(--brand);
 }
 
 .bed-tile.selected {
-  border-color: #16736c;
-  background: #e8f7f5;
+  border-color: var(--brand);
+  background: var(--brand-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .bed-tile span {
   color: #5b6575;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 .bed-tile strong {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
 }
 
 .availability-readout {
@@ -284,10 +373,10 @@ nav {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid #d5deea;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: #f8fafc;
-  padding: 12px;
+  padding: 14px;
 }
 
 .availability-readout span {
@@ -301,20 +390,29 @@ nav {
 }
 
 .control-button {
-  min-height: 52px;
+  min-height: 54px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #ffffff;
   font-size: 1.5rem;
   font-weight: 800;
+  box-shadow: var(--shadow-sm);
 }
 
 .control-button.decrease {
+  background: var(--danger);
+}
+
+.control-button.decrease:hover:not(:disabled) {
   background: #b42318;
 }
 
 .control-button.increase {
-  background: #16736c;
+  background: var(--brand);
+}
+
+.control-button.increase:hover:not(:disabled) {
+  background: #0a5b54;
 }
 
 .patient-grid {
@@ -326,10 +424,21 @@ nav {
 .patient-card {
   display: grid;
   gap: 16px;
-  border: 1px solid #dce4ee;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: #ffffff;
+  box-shadow: var(--shadow-sm);
   padding: 18px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+
+button.patient-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand);
+}
+
+button.patient-card:active {
+  transform: translateY(1px);
 }
 
 .patient-card-header {
@@ -341,6 +450,7 @@ nav {
 
 .patient-card h3 {
   margin: 0;
+  font-size: 1.05rem;
 }
 
 .patient-card p {
@@ -360,9 +470,9 @@ nav {
   gap: 12px;
   min-height: 42px;
   border: 1px solid #e1e7ef;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #f8fafc;
-  padding: 8px 10px;
+  padding: 8px 12px;
 }
 
 .patient-bed-row span {
@@ -398,6 +508,10 @@ nav {
   }
 
   .bed-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-row {
     grid-template-columns: 1fr 1fr;
   }
 }

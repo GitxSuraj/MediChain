@@ -168,13 +168,24 @@ export default function BookAppointment() {
                 className={`book-field__select ${errors.doctor ? 'book-field--error' : ''}`}
                 value={doctorId}
                 onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctor: undefined })); }}
-                disabled={!hospitalId}
+                disabled={!hospitalId || availableDoctors.length === 0}
               >
-                <option value="">{hospitalId ? 'Select a doctor' : 'Select a hospital first'}</option>
+                <option value="">
+                  {!hospitalId
+                    ? 'Select a hospital first'
+                    : availableDoctors.length === 0
+                    ? 'No doctors available at this hospital'
+                    : 'Select a doctor'}
+                </option>
                 {availableDoctors.map((d) => (
                   <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>
                 ))}
               </select>
+              {hospitalId && availableDoctors.length === 0 && (
+                <span className="book-field__error">
+                  This hospital has no doctors listed yet. Try a different hospital.
+                </span>
+              )}
               {errors.doctor && <span className="book-field__error">{errors.doctor}</span>}
             </div>
 

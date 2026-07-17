@@ -5,7 +5,14 @@ from models.transfer import (
     TransferEvent,
     TransferResponseEvent,
 )
-from database.transfers import create_transfer, update_transfer_status, get_patient_by_id
+from database.transfers import (
+    create_transfer,
+    get_transfer_by_id,
+    update_transfer_status,
+    get_patient_by_id,
+    get_all_patients,
+    update_patient_hospital,
+)
 from realtime.connection_manager import manager
 
 router = APIRouter()
@@ -30,10 +37,23 @@ async def post_transfer(transfer: TransferRequest):
 
 @router.post("/transfers/{transfer_id}/respond")
 async def respond_transfer(transfer_id: str, payload: TransferResponseRequest):
+    transfer = get_transfer_by_id(transfer_id)
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Transfer not found")
+
     update_transfer_status(transfer_id, payload.status)
+
+    if payload.status == "accepted":
+        update_patient_hospital(transfer["patient_id"], transfer["to_hospital"])
+
     event = TransferResponseEvent(transfer_id=transfer_id, status=payload.status)
     await manager.broadcast(event.model_dump())
     return {"status": "success"}
+
+
+@router.get("/patients")
+async def list_patients():
+    return get_all_patients()
 
 
 @router.get("/patients/{patient_id}")
