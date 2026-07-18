@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { JSX } from 'react';
 import type { MedicalHistoryEntry } from '../services/patient';
 import './MedicalTimelineItem.css';
 

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import type { JSX } from 'react';
 import './QuickActionCard.css';
 
 interface QuickActionCardProps {
