@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
+import type { JSX } from 'react';
 import './Sidebar.css';
 
 interface NavItem {
