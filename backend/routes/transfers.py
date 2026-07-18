@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Header
+from bson import ObjectId
 from models.transfer import (
     TransferRequest,
     TransferResponseRequest,
@@ -12,8 +13,10 @@ from database.transfers import (
     get_patient_by_id,
     get_all_patients,
     update_patient_hospital,
+    get_transfers,
 )
 from realtime.connection_manager import manager
+from routes.auth import current_hospital_user
 
 router = APIRouter()
 
@@ -36,10 +39,15 @@ async def post_transfer(transfer: TransferRequest):
 
 
 @router.post("/transfers/{transfer_id}/respond")
-async def respond_transfer(transfer_id: str, payload: TransferResponseRequest):
+async def respond_transfer(transfer_id: str, payload: TransferResponseRequest, authorization: str | None = Header(default=None)):
     transfer = get_transfer_by_id(transfer_id)
     if not transfer:
         raise HTTPException(status_code=404, detail="Transfer not found")
+    session = current_hospital_user(authorization)
+    from database.hospitals import get_hospitals_collection
+    hospital = get_hospitals_collection().find_one({"_id": ObjectId(session["hospital_id"])})
+    if not hospital or transfer["to_hospital"] != hospital["name"]:
+        raise HTTPException(status_code=403, detail="You can only respond to transfers sent to your hospital.")
 
     update_transfer_status(transfer_id, payload.status)
 
@@ -54,6 +62,11 @@ async def respond_transfer(transfer_id: str, payload: TransferResponseRequest):
 @router.get("/patients")
 async def list_patients():
     return get_all_patients()
+
+
+@router.get("/transfers")
+async def list_transfers(hospital: str | None = Query(default=None)):
+    return get_transfers(hospital)
 
 
 @router.get("/patients/{patient_id}")

@@ -4,7 +4,8 @@ import "../styles.css";
 import BedCategorySummary from "../components/BedCategorySummary.jsx";
 import BedController from "../components/BedController.jsx";
 import TransferPanel from "../components/TransferPanel.jsx";
-import { getHospitals, updateBedAvailability } from "../services/api.js";
+import AppointmentRequests from "../components/AppointmentRequests.jsx";
+import { getHospitals, getPatients, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
 
 const defaultCategory = "icu";
@@ -40,7 +41,7 @@ const DOCTORS_BY_HOSPITAL = {
   ],
 };
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ hospitalId }) {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory);
@@ -48,6 +49,7 @@ export default function AdminDashboard() {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [patientCount, setPatientCount] = useState(0);
 
   const selectedHospital = useMemo(
     () => hospitals.find((hospital) => hospital.id === selectedHospitalId),
@@ -113,8 +115,12 @@ export default function AdminDashboard() {
 
     try {
       const hospitalList = await getHospitals();
-      setHospitals(hospitalList);
-      setSelectedHospitalId((currentId) => currentId || hospitalList[0]?.id || "");
+      const scopedHospitals = hospitalId ? hospitalList.filter((hospital) => hospital.id === hospitalId) : hospitalList;
+      setHospitals(scopedHospitals);
+      setSelectedHospitalId(hospitalId || scopedHospitals[0]?.id || "");
+      const patients = await getPatients();
+      const selected = scopedHospitals[0];
+      setPatientCount(selected ? patients.filter((patient) => patient.current_hospital === selected.name).length : 0);
     } catch (err) {
       setError(err.message || "Unable to load hospitals.");
     } finally {
@@ -150,37 +156,49 @@ export default function AdminDashboard() {
     }
   }
 
+  function logoutHospital() {
+    localStorage.removeItem("medichain_hospital_token");
+    localStorage.removeItem("medichain_hospital");
+    window.location.assign("/hospital-login");
+  }
+
   return (
     <section className="page">
-      <div className="page-header">
-        <p className="eyebrow">Admin</p>
-        <h2>Admin Dashboard</h2>
-        <p>Select a hospital, review live availability, and adjust bed counts for the demo flow.</p>
+      <div className="hospital-hero">
+        <div>
+          <p className="eyebrow">MediChain · Hospital Portal</p>
+          <h2>{selectedHospital?.name || "Hospital Operations"}</h2>
+          <p>Live bed operations, patient transfers, and appointment requests in one workspace.</p>
+        </div>
+        <div className="hospital-hero__actions">
+          <span className="live-indicator"><i /> Live connected</span>
+          <button className="logout-button" type="button" onClick={logoutHospital}>Log out</button>
+        </div>
       </div>
 
       {!loading && hospitals.length > 0 ? (
         <div className="stat-row">
           <div className="stat-card">
-            <p className="stat-label">Hospitals in Network</p>
-            <p className="stat-value">{hospitals.length}</p>
+            <p className="stat-label">Patients admitted</p>
+            <p className="stat-value">{patientCount}</p>
           </div>
           <div className="stat-card">
             <p className="stat-label">ICU Beds Available</p>
             <p className="stat-value">{networkStats.totalIcu}</p>
           </div>
           <div className="stat-card">
-            <p className="stat-label">General Beds Available</p>
+            <p className="stat-label">General beds available</p>
             <p className="stat-value">{networkStats.totalGeneral}</p>
           </div>
           <div className="stat-card">
-            <p className="stat-label">Oxygen Beds Available</p>
+            <p className="stat-label">Oxygen beds available</p>
             <p className="stat-value">{networkStats.totalOxygen}</p>
           </div>
         </div>
       ) : null}
 
       <div className="toolbar">
-        <label className="field hospital-selector">
+        {!hospitalId && <label className="field hospital-selector">
           <span>Hospital</span>
           <select
             value={selectedHospitalId}
@@ -197,7 +215,7 @@ export default function AdminDashboard() {
               </option>
             ))}
           </select>
-        </label>
+        </label>}
 
         <button className="secondary-button" type="button" disabled={loading} onClick={loadHospitals}>
           {loading ? "Loading..." : "Reload"}
@@ -267,7 +285,8 @@ export default function AdminDashboard() {
         </div>
       ) : null}
 
-      <TransferPanel />
+      <TransferPanel hospitalName={selectedHospital?.name} />
+      <AppointmentRequests />
     </section>
   );
 }

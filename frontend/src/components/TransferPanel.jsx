@@ -5,6 +5,7 @@ import {
   createTransfer,
   respondToTransfer,
   getPatient,
+  getTransfers,
 } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
 
@@ -19,7 +20,7 @@ const FACILITY_OPTIONS = [
   "MRI",
 ];
 
-export default function TransferPanel() {
+export default function TransferPanel({ hospitalName = "" }) {
   const [hospitals, setHospitals] = useState([]);
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -47,12 +48,18 @@ export default function TransferPanel() {
   useEffect(() => {
     async function load() {
       try {
-        const [hospitalData, patientData] = await Promise.all([
+        const [hospitalData, patientData, transferData] = await Promise.all([
           getHospitals(),
           getPatients(),
+          getTransfers(hospitalName),
         ]);
         setHospitals(hospitalData);
         setPatients(patientData);
+        setTransfers(transferData);
+        const records = await Promise.all(transferData.map(async (transfer) => {
+          try { return [transfer.transfer_id, await getPatient(transfer.patient_id)]; } catch { return null; }
+        }));
+        setPatientRecords(Object.fromEntries(records.filter(Boolean)));
         if (patientData[0]) setSelectedPatientId(patientData[0]._id);
       } catch (err) {
         setError(err.message || "Unable to load hospitals or patients.");
@@ -61,7 +68,7 @@ export default function TransferPanel() {
       }
     }
     load();
-  }, []);
+  }, [hospitalName]);
 
   useEffect(() => {
     const socket = createRealtimeSocket({
@@ -116,6 +123,7 @@ export default function TransferPanel() {
     setError("");
     try {
       await respondToTransfer(transferId, status);
+      setTransfers((current) => current.map((transfer) => transfer.transfer_id === transferId ? { ...transfer, status } : transfer));
       if (status === "accepted" && patientId) {
         const patient = await getPatient(patientId);
         setPatientRecords((prev) => ({ ...prev, [transferId]: patient }));
@@ -128,9 +136,9 @@ export default function TransferPanel() {
   return (
     <section className="page" style={{ marginTop: "28px" }}>
       <div className="page-header">
-        <p className="eyebrow">Admin</p>
-        <h2>Emergency Transfers</h2>
-        <p>Pick a patient, choose a destination hospital, and send a live transfer request.</p>
+        <p className="eyebrow">Transfer desk</p>
+        <h2>Incoming Transfer Requests</h2>
+        <p>{hospitalName ? `Review and respond to requests sent to ${hospitalName}.` : 'Pick a patient, choose a destination hospital, and send a live transfer request.'}</p>
       </div>
 
       {error ? <div className="alert error">{error}</div> : null}
@@ -139,7 +147,7 @@ export default function TransferPanel() {
         <div className="empty-state">Loading patients and hospitals…</div>
       ) : (
         <div className="admin-grid">
-          {/* Patient selection */}
+          {!hospitalName && <>{/* Patient selection */}
           <div className="hospital-panel">
             <h3>Select Patient</h3>
             <div className="patient-grid">
@@ -224,6 +232,7 @@ export default function TransferPanel() {
               <p>Select a patient to begin.</p>
             )}
           </div>
+          </>}
         </div>
       )}
 
@@ -256,7 +265,7 @@ export default function TransferPanel() {
                 <span className="tag">Needs: {t.required_facility}</span>
               </div>
 
-              {!t.status && (
+              {(t.status === "pending" || !t.status) && (
                 <div className="button-row">
                   <button className="secondary-button" onClick={() => handleRespond(t.transfer_id, "accepted", t.patient_id)}>
                     Accept
@@ -271,7 +280,7 @@ export default function TransferPanel() {
                 <div className="patient-bed-grid">
                   <div className="patient-bed-row">
                     <span>Blood Type</span>
-                    <strong>{patientRecords[t.transfer_id].blood_type}</strong>
+                    <strong>{patientRecords[t.transfer_id].bloodGroup || patientRecords[t.transfer_id].blood_type || "Not recorded"}</strong>
                   </div>
                   <div className="patient-bed-row">
                     <span>Allergies</span>
@@ -279,7 +288,7 @@ export default function TransferPanel() {
                   </div>
                   <div className="patient-bed-row">
                     <span>History</span>
-                    <strong>{patientRecords[t.transfer_id].history?.join(", ") || "None"}</strong>
+                    <strong>{patientRecords[t.transfer_id].medicalConditions?.join(", ") || patientRecords[t.transfer_id].history?.join(", ") || "None"}</strong>
                   </div>
                 </div>
               )}

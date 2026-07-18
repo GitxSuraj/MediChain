@@ -14,7 +14,7 @@ const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const GENDERS = ['Female', 'Male', 'Other'];
 
 export default function PatientProfile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState<PatientProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,6 +47,7 @@ export default function PatientProfile() {
     try {
       const updated = await updatePatientProfile(user.id, profile);
       setProfile(updated);
+      updateUser({ id: updated.id, name: updated.name, email: updated.email, phone: updated.phone, bloodGroup: updated.bloodGroup, abhaNumber: updated.abhaNumber, dateOfBirth: updated.dateOfBirth, gender: updated.gender });
       setDirty(false);
       setToast({ message: 'Profile updated successfully.', type: 'success' });
     } catch (err) {
