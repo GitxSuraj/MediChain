@@ -1,105 +1,289 @@
-﻿# MediChain — Hospital Network Application
 
-Overview
+# 🏥 MediChain — Unified Hospital Network Platform
 
-MediChain provides a real-time hospital bed-tracking and simple transfer notification system. It includes a FastAPI backend (MongoDB), a WebSocket manager for realtime events, and a React (Vite) frontend with separate Admin and Patient dashboards.
+> **A real-time hospital network platform** connecting patients and hospitals through live bed availability, appointment management, emergency patient transfers, and hospital operations.
 
-Key features
+<p align="center">
 
-- Live bed availability updates via WebSockets
-- Hospital list with search & filters (facility, city)
-- Admin bed controller to increment/decrement bed counts
-- Mock login to switch between Admin/Patient views
-- Seed scripts for demo data
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![WebSockets](https://img.shields.io/badge/WebSockets-Real--Time-success?style=for-the-badge)
 
-Tech stack
-
-- Backend: Python 3.11+, FastAPI, pymongo
-- Realtime: WebSockets (FastAPI connection manager)
-- Database: MongoDB
-- Frontend: React (Vite)
-
-Repository structure (important paths)
-
-- backend/       — FastAPI app, routes, MongoDB integration
-- frontend/      — React app (Vite)
-- backend/.env.example — sample env for MongoDB
-- frontend/.env.example — sample env for frontend API URL
-
-Environment variables
-
-Backend (.env in backend/)
-- MONGO_URI (e.g. mongodb://localhost:27017)
-- DATABASE_NAME (e.g. medichain)
-
-Frontend (.env in frontend/)
-- VITE_API_URL (e.g. http://localhost:8000)
-
-Installation & run (Windows)
-
-1. Backend
-   - Open a terminal in the repository root or backend/
-   - Create and activate a virtualenv (PowerShell):
-     .\backend\.venv\Scripts\Activate.ps1    # or use CMD: .\backend\.venv\Scripts\activate.bat
-   - Install requirements:
-     pip install -r backend/requirements.txt
-   - Copy env example and edit if needed:
-     copy backend\.env.example backend\.env
-   - Start the API (recommended from backend/):
-     uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-
-   Notes: If PowerShell blocks scripts (npm/activate), either run PowerShell as Administrator and set execution policy for the session:
-     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-   Or open cmd.exe to activate virtualenv with the .bat script.
-
-2. Frontend
-   - Open a separate terminal in /frontend
-   - Install packages:
-     npm install
-   - Start dev server:
-     npm run dev
-   - Frontend runs on Vite default port (5173). If host is 127.0.0.1 the URL will be http://127.0.0.1:5173
-
-   Windows note: If PowerShell reports an npm.ps1 execution policy error, run the commands in Command Prompt (cmd.exe) or use `npm.cmd` instead of `npm` in PowerShell.
-
-Quick health checks
-
-- Backend root: GET http://127.0.0.1:8000/ should return {"status":"Hospital Network API running"}
-- WebSocket endpoint: ws://127.0.0.1:8000/ws
-- Frontend: open http://127.0.0.1:5173 (or the host/port printed by Vite)
-
-Demo workflow (5–10 minutes)
-
-1. Start MongoDB locally.
-2. Start backend (see above) and run seed script if desired:
-   python -m scripts.seed_hospitals
-3. Start frontend (npm run dev).
-4. Open two browser windows/tabs:
-   - Patient dashboard (select mock login as Patient)
-   - Admin dashboard (select mock login as Admin for one seeded hospital)
-5. In Admin dashboard, decrement/increment a bed category (e.g., ICU).
-6. Observe the Patient dashboard updating in real-time without refresh.
-
-Testing checklist (important)
-
-- Hospital list loads and filters by facility/city
-- Admin bed updates broadcast and patient UI updates live
-- No runtime errors in browser console or backend logs when following demo flow
-
-Troubleshooting notes
-
-- If backend fails to start: ensure uvicorn is installed in the virtualenv (pip install uvicorn) and requirements are installed.
-- If frontend dev server fails: run `npm install` in /frontend, then `npm run dev` from cmd.exe if PowerShell blocks npm scripts.
-- Do NOT add .env files to source control. Keep sensitive credentials out of the repo.
-
-Contribution / Milestone 10 scope
-
-This repository has completed Milestones 0–9. Milestone 10 (this branch) focuses on final integration, testing, documentation, and demo readiness only. No production refactors, renames, or tech-stack changes were made.
-
-Contact / Demo tip
-
-- For a smooth demo, assign one operator to the UI and one narrator. Keep MongoDB running and seed demo data before the run.
+</p>
 
 ---
 
-(Updated README for Milestone 10: final integration & demo instructions)
+## ✨ Features
+
+### 👤 Patient Portal
+
+- ✅ MongoDB-backed patient registration & login
+- ✅ Persistent patient profile
+- ✅ Browse hospitals with live bed availability
+- ✅ Book appointments
+- ✅ Track appointment status
+- ✅ Submit hospital transfer requests
+
+**Appointment Status**
+- 🟡 Pending
+- 🟢 Confirmed
+- 🔵 Completed
+- 🔴 Cancelled
+
+---
+
+### 🏥 Hospital Portal
+
+Accessible via **`/hospital-login`**
+
+- Secure hospital login
+- Hospital-specific dashboard
+- Manage ICU, General, Oxygen & Emergency beds
+- Receive transfer requests
+- Accept / Decline transfers
+- Receive appointment requests
+- Accept / Decline appointments
+- Secure logout
+
+---
+
+## ⚡ Real-Time Updates
+
+Powered by **Native WebSockets**
+
+| Event | Description |
+|-------|-------------|
+| `bed_update` | Live bed availability |
+| `transfer_request` | New transfer request |
+| `transfer_response` | Accepted / Declined transfer |
+
+---
+
+# 🛠 Tech Stack
+
+| Layer | Technology |
+|------|------------|
+| Backend | Python • FastAPI • Pydantic |
+| Database | MongoDB + PyMongo |
+| Frontend | React • Vite • TypeScript • JavaScript |
+| Real-time | Native WebSockets |
+| Styling | Custom CSS |
+
+---
+
+# 📂 Project Structure
+
+```text
+MediChain/
+├── backend/
+│   ├── database/
+│   ├── models/
+│   ├── routes/
+│   ├── realtime/
+│   ├── scripts/
+│   ├── main.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── context/
+│   │   └── websocket/
+│   └── package.json
+│
+└── README.md
+```
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Python **3.10+**
+- Node.js **18+**
+- MongoDB Atlas or Local MongoDB
+
+### 1️⃣ Backend
+
+```bash
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+copy .env.example .env
+```
+
+**backend/.env**
+
+```env
+MONGO_URI=your_mongodb_connection_string
+DATABASE_NAME=hospital_network
+```
+
+Seed hospitals:
+
+```bash
+python -m scripts.seed_hospitals
+```
+
+Run backend:
+
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+- API → http://localhost:8000
+- Docs → http://localhost:8000/docs
+
+---
+
+### 2️⃣ Frontend
+
+```bash
+cd frontend
+npm install
+copy .env.example .env
+npm run dev
+```
+
+**frontend/.env**
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+Frontend:
+
+http://localhost:5173
+
+---
+
+# 🔐 Login
+
+## 👤 Patient
+
+`http://localhost:5173/login`
+
+Create a patient account. All patient information is stored in MongoDB.
+
+## 🏥 Hospital
+
+`http://localhost:5173/hospital-login`
+
+**Password**
+
+```text
+Hospital@123
+```
+
+Redirects to:
+
+`http://localhost:5173/admin`
+
+---
+
+# 🗺 Important Routes
+
+| Route | Description |
+|------|-------------|
+| `/login` | Patient Login |
+| `/dashboard` | Patient Dashboard |
+| `/profile` | Patient Profile |
+| `/book-appointment` | Book Appointment |
+| `/appointment-status` | Appointment Status |
+| `/hospitals` | Hospital Directory |
+| `/transfer` | Transfer Request |
+| `/hospital-login` | Hospital Login |
+| `/admin` | Hospital Dashboard |
+
+---
+
+# 🌱 Database Seeding
+
+```bash
+python -m scripts.seed_hospitals
+```
+
+Creates demo hospitals and hospital login accounts.
+
+> ⚠️ Do not run this on an existing production database.
+
+---
+
+# 💾 Persistent Features
+
+| Feature | Stored In |
+|---------|-----------|
+| Patient Accounts | MongoDB |
+| Patient Profiles | MongoDB |
+| Bed Availability | MongoDB |
+| Appointments | MongoDB |
+| Transfers | MongoDB |
+| Hospital Sessions | MongoDB |
+
+---
+
+# 📝 Notes
+
+- Doctor rosters are currently demo/static.
+- Dashboard health summaries are demo data.
+- Never commit `.env` files.
+- Store credentials using environment variables.
+
+---
+
+## ⭐ Future Improvements
+
+- Email notifications
+- Role-based access control
+- Analytics dashboard
+- Docker deployment
+- Cloud deployment
+
+---
+
+<p align="center">
+Made with ❤️ using FastAPI, React, MongoDB and WebSockets.
+</p>
+
+
+---
+
+# 🧑‍🤝‍🧑 Team & Contributors
+
+Built by a **3-person team** using a **vertical ownership model**, where each member owned a feature end-to-end (backend + frontend).
+
+| Contributor | Responsibilities |
+|-------------|------------------|
+| **Suraj Sharma** | 🛏️ Bed System & Shared Backend Foundation — Hospital data management, WebSocket connection manager, live bed controller, backend foundation |
+| **Satyam Jaiswal** | 🚑 Emergency Transfer System — transfer request workflow, live accept/decline functionality, patient record viewer, Hospital Login UI, and integration of backend and frontend modules across the application |
+| **Sajal Vaish** | 💻 Patient-facing frontend — Login, Dashboard, Profile, Hospital Directory, Appointment Booking, Appointment Status, Hospital Location Tracking, and UI development |
+
+---
+
+# 🩹 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Backend won't start | Ensure the virtual environment is activated and run `pip install -r requirements.txt`. |
+| `/hospitals` returns `[]` | Run `python -m scripts.seed_hospitals`. |
+| CORS error | Verify the backend CORS middleware allows your frontend origin. |
+| White screen on startup | Hard refresh (`Ctrl + Shift + R`). If it persists, open the browser console (`F12`) and check for import/runtime errors. |
+| PowerShell blocks `npm` or virtual environment activation | Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` or use Command Prompt. |
+
+---
+
+<p align="center">
+
+⭐ **If you found this project interesting, consider giving it a star!** ⭐
+
+Built with ❤️ using **FastAPI**, **React**, **MongoDB**, and **WebSockets**.
+
+</p>
