@@ -9,7 +9,9 @@ import BookAppointment from './pages/BookAppointment';
 import AppointmentStatus from './pages/AppointmentStatus';
 import PatientHistory from './pages/PatientHistory';
 import HospitalDirectory from './pages/HospitalDirectory';
+import PatientTransfer from './pages/PatientTransfer';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import HospitalLogin from './pages/HospitalLogin.jsx';
 import './App.css';
 
 function App() {
@@ -19,7 +21,8 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Admin / Hospital staff view — bed system + transfer system (no patient auth required) */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/hospital-login" element={<HospitalLogin />} />
+        <Route path="/admin" element={<HospitalPortal />} />
 
         <Route
           path="/dashboard"
@@ -69,6 +72,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/transfer" element={<ProtectedRoute><PatientLayout title="Hospital Transfer"><PatientTransfer /></PatientLayout></ProtectedRoute>} />
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -78,3 +82,9 @@ function App() {
 }
 
 export default App;
+
+function HospitalPortal() {
+  const stored = localStorage.getItem('medichain_hospital');
+  if (!stored || !localStorage.getItem('medichain_hospital_token')) return <Navigate to="/hospital-login" replace />;
+  return <AdminDashboard hospitalId={JSON.parse(stored).id} />;
+}

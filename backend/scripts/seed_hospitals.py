@@ -2,6 +2,9 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 from database.hospitals import get_hospitals_collection
 from database.mongodb import MONGODB_UNAVAILABLE_MESSAGE
+from database.mongodb import get_database
+from routes.auth import _hash
+import secrets
 from models.hospital import HospitalSeed
 
 
@@ -73,6 +76,15 @@ def seed_hospitals() -> int:
         collection.update_one(
             {"name": validated_hospital["name"], "city": validated_hospital["city"]},
             {"$set": validated_hospital},
+            upsert=True,
+        )
+
+        saved = collection.find_one({"name": validated_hospital["name"], "city": validated_hospital["city"]})
+        salt = secrets.token_hex(16)
+        get_database().hospital_users.update_one(
+            {"hospital_id": str(saved["_id"])},
+            {"$setOnInsert": {"hospital_id": str(saved["_id"]), "hospital_object_id": saved["_id"],
+                               "password_salt": salt, "password_hash": _hash("Hospital@123", salt)}},
             upsert=True,
         )
 

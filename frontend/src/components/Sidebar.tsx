@@ -54,6 +54,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Appointment Status', path: '/appointment-status', icon: ICONS.status },
   { label: 'Medical History', path: '/medical-history', icon: ICONS.history },
   { label: 'Hospital Directory', path: '/hospitals', icon: ICONS.hospital },
+  { label: 'Request Transfer', path: '/transfer', icon: ICONS.hospital },
 ];
 
 interface SidebarProps {

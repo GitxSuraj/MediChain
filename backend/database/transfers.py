@@ -1,5 +1,6 @@
 from bson import ObjectId
 from database.mongodb import get_database
+from datetime import datetime, timezone
 
 
 def get_transfers_collection():
@@ -11,10 +12,21 @@ def get_patients_collection():
 
 
 def create_transfer(data: dict) -> dict:
+    data.setdefault("status", "pending")
+    data.setdefault("createdAt", datetime.now(timezone.utc))
     collection = get_transfers_collection()
     result = collection.insert_one(data)
     data["_id"] = str(result.inserted_id)
     return data
+
+
+def get_transfers(hospital_name: str | None = None) -> list[dict]:
+    query = {"to_hospital": hospital_name} if hospital_name else {}
+    records = list(get_transfers_collection().find(query).sort("createdAt", -1))
+    for record in records:
+        record["_id"] = str(record["_id"])
+        record["transfer_id"] = record["_id"]
+    return records
 
 
 def get_transfer_by_id(transfer_id: str) -> dict | None:

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Header
 from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 from database.hospitals import (
@@ -15,6 +15,7 @@ from database.hospitals import (
 from database.mongodb import MONGODB_UNAVAILABLE_MESSAGE
 from models.hospital import BedUpdateEvent, BedUpdateRequest, BedUpdateResponse, HospitalResponse
 from realtime.connection_manager import manager
+from routes.auth import current_hospital_user
 
 
 router = APIRouter()
@@ -44,7 +45,11 @@ async def update_hospital_beds(
     hospital_id: str,
     category: str,
     payload: BedUpdateRequest,
+    authorization: str | None = Header(default=None),
 ):
+    session = current_hospital_user(authorization)
+    if session["hospital_id"] != hospital_id:
+        raise HTTPException(status_code=403, detail="You can only manage your own hospital beds.")
     normalized_category = category.strip().lower()
 
     try:
