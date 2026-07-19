@@ -13,7 +13,8 @@ app = FastAPI(
     version="0.1.0",
 )
 
-allowed_origins = [
+allowed_origins =[
+    "https://your-actual-vercel-url.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
