@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHospitals } from '../services/api.js';
-import './login.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 export default function HospitalLogin() {
