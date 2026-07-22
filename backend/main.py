@@ -14,7 +14,7 @@ app = FastAPI(
 )
 
 allowed_origins =[
-    "https://medi-chain-chi.vercel.app",
+    "https://medichain-lime.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
