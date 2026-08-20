@@ -35,8 +35,8 @@ def get_hospitals(
         ) from exc
     except PyMongoError as exc:
         raise HTTPException(
-            status_code=500,
-            detail=f"MongoDB query failed: {exc}",
+            status_code=503,
+            detail=MONGODB_UNAVAILABLE_MESSAGE,
         ) from exc
 
 
@@ -73,8 +73,8 @@ async def update_hospital_beds(
         ) from exc
     except PyMongoError as exc:
         raise HTTPException(
-            status_code=500,
-            detail=f"MongoDB update failed: {exc}",
+            status_code=503,
+            detail=MONGODB_UNAVAILABLE_MESSAGE,
         ) from exc
 
     if normalized_category in BED_CATEGORIES:

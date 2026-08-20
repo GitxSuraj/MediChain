@@ -5,12 +5,13 @@ import './PaymentCheckout.css';
 interface PaymentCheckoutProps {
   orderId: string;
   amount: number;
+  keyId: string;
   hospitalName: string;
   onSuccess: () => void;
   onClose?: () => void;
 }
 
-export default function PaymentCheckout({ orderId, amount, hospitalName, onSuccess, onClose }: PaymentCheckoutProps) {
+export default function PaymentCheckout({ orderId, amount, keyId, hospitalName, onSuccess, onClose }: PaymentCheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
 
@@ -32,9 +33,13 @@ export default function PaymentCheckout({ orderId, amount, hospitalName, onSucce
       alert('Razorpay SDK failed to load. Please check your internet connection.');
       return;
     }
+    if (!keyId) {
+      alert('Payment checkout is not configured. Please restart your booking.');
+      return;
+    }
 
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_1234567890',
+      key: keyId,
       amount: amount.toString(),
       currency: 'INR',
       name: 'MediChain',

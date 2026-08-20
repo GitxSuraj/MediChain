@@ -4,7 +4,6 @@ import { getAllHospitals, type Hospital, type Doctor } from '../services/hospita
 import { bookAppointment, AVAILABLE_TIME_SLOTS } from '../services/appointment';
 import StepIndicator from '../components/StepIndicator';
 import Toast from '../components/Toast';
-import PaymentCheckout from '../components/PaymentCheckout';
 import { createPaymentOrder } from '../services/payment';
 import './BookAppointment.css';
 
@@ -36,9 +35,6 @@ export default function BookAppointment() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [bookedId, setBookedId] = useState<string | null>(null);
-  const [paymentOrder, setPaymentOrder] = useState<{ orderId: string, amount: number } | null>(null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     getAllHospitals().then((data) => {
@@ -107,14 +103,13 @@ export default function BookAppointment() {
       // Create Razorpay order, then navigate to the dedicated payment page
       const order = await createPaymentOrder({
         appointment_id: appt.id,
-        amount: 50000, // ₹500 in paise
-        hospital_id: selectedHospital.id,
       });
 
       navigate('/payment', {
         state: {
           orderId:       order.orderId,
           amount:        order.amount,
+          keyId:         order.keyId,
           appointmentId: appt.id,
           hospitalName:  selectedHospital.name,
           doctorName:    selectedDoctor.name,
@@ -128,72 +123,6 @@ export default function BookAppointment() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (bookedId && !paymentSuccess) {
-    return (
-      <div className="book-appointment">
-        <div className="card-surface fade-in-up">
-          <div className="booking-pay-screen">
-            {/* Mini step trail */}
-            <div className="booking-pay-screen__steps">
-              <span className="booking-pay-screen__step booking-pay-screen__step--done">
-                <span className="booking-pay-screen__step-dot">✓</span> Booked
-              </span>
-              <span className="booking-pay-screen__arrow">›</span>
-              <span className="booking-pay-screen__step booking-pay-screen__step--active">
-                <span className="booking-pay-screen__step-dot">2</span> Payment
-              </span>
-              <span className="booking-pay-screen__arrow">›</span>
-              <span className="booking-pay-screen__step">
-                <span className="booking-pay-screen__step-dot" style={{ background:'#f1f5f9', color:'#94a3b8' }}>3</span> Confirmed
-              </span>
-            </div>
-
-            <h2>Complete Your Booking</h2>
-            <p>Appointment slot reserved. Pay now to confirm your consultation.</p>
-
-            {paymentOrder ? (
-              <PaymentCheckout
-                orderId={paymentOrder.orderId}
-                amount={paymentOrder.amount}
-                hospitalName={selectedHospital?.name || ''}
-                onSuccess={() => setPaymentSuccess(true)}
-                onClose={() => setToast({ message: 'Payment cancelled. Your slot is still held.', type: 'error' })}
-              />
-            ) : (
-              <div style={{ marginTop: '20px', display: 'flex', gap: '8px', alignItems: 'center', color: '#64748b', fontSize: '0.88rem' }}>
-                <span className="spinner" /> Preparing payment…
-              </div>
-            )}
-          </div>
-        </div>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </div>
-    );
-  }
-
-  if (paymentSuccess) {
-    return (
-      <div className="book-appointment book-appointment--success">
-        <div className="booking-success card-surface fade-in-up">
-          <div className="booking-success__icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M20 6L9 17l-5-5" /></svg>
-          </div>
-          <h2>Appointment Requested</h2>
-          <p className="text-secondary">
-            Your request with {selectedDoctor?.name} at {selectedHospital?.name} has been submitted.
-            You'll receive a confirmation once the hospital accepts it.
-          </p>
-          <span className="booking-success__id mono">{bookedId}</span>
-          <div className="booking-success__actions">
-            <button className="btn btn-secondary" onClick={() => navigate('/appointment-status')}>View Status</button>
-            <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
-          </div>
-        </div>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </div>
-    );
   }
 
   return (

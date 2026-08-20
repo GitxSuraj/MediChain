@@ -68,6 +68,7 @@ export default function HospitalLogin() {
         id:   selectedHospital.id,
         name: selectedHospital.name,
         city: selectedHospital.city || '',
+        type: selectedHospital.type || 'hospital',
       }));
 
       if (body.user.role === 'super_admin') {

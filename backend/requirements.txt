@@ -3,3 +3,4 @@ pymongo
 python-dotenv
 uvicorn[standard]
 email-validator
+pytest

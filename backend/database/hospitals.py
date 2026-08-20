@@ -55,6 +55,8 @@ def serialize_hospital(hospital: dict[str, Any]) -> dict[str, Any]:
         "city": hospital["city"],
         "facilities": hospital.get("facilities", []),
         "beds": hospital.get("beds", {}),
+        # Documents created before clinic support intentionally remain hospitals.
+        "type": hospital.get("type", "hospital"),
     }
 
 

@@ -9,7 +9,6 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
-DEFAULT_MONGO_URI = "mongodb+srv://twistersatyam_medichain:MiGFuNcqfMjlZkdT@cluster0.z8irybe.mongodb.net/?appName=Cluster0"
 DEFAULT_DATABASE_NAME = "hospital_network"
 MONGODB_UNAVAILABLE_MESSAGE = (
     "MongoDB connection requires a running MongoDB instance. "
@@ -24,7 +23,10 @@ class MongoDBConnectionError(ConnectionError):
 
 
 def get_mongo_uri() -> str:
-    return os.getenv("MONGO_URI", DEFAULT_MONGO_URI)
+    mongo_uri = os.getenv("MONGO_URI")
+    if not mongo_uri:
+        raise MongoDBConnectionError("MongoDB is not configured. Set MONGO_URI before starting the API.")
+    return mongo_uri
 
 
 def get_database_name() -> str:

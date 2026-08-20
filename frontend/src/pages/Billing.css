@@ -1,0 +1,1 @@
+@media print { .no-print, nav, button { display: none !important; } .bill-print { box-shadow: none !important; margin: 0 !important; width: 100% !important; } body { background: #fff !important; } }

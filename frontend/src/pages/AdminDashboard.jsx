@@ -5,6 +5,8 @@ import BedCategorySummary from "../components/BedCategorySummary.jsx";
 import BedController from "../components/BedController.jsx";
 import TransferPanel from "../components/TransferPanel.jsx";
 import AppointmentRequests from "../components/AppointmentRequests.jsx";
+import InventoryManagement from "./InventoryManagement.jsx";
+import Billing from "./Billing.jsx";
 import PermissionGate from "../components/PermissionGate.jsx";
 import { getHospitals, getPatients, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
@@ -60,6 +62,7 @@ export default function AdminDashboard({ hospitalId }) {
   const selectedHospitalDoctors = selectedHospital
     ? DOCTORS_BY_HOSPITAL[selectedHospital.name] || []
     : [];
+  const isClinic = selectedHospital?.type === "clinic";
 
   const networkStats = useMemo(() => {
     return hospitals.reduce(
@@ -188,7 +191,7 @@ export default function AdminDashboard({ hospitalId }) {
         </div>
       </div>
 
-      {!loading && hospitals.length > 0 ? (
+      {!loading && hospitals.length > 0 && !isClinic ? (
         <div className="stat-row">
           <div className="stat-card">
             <p className="stat-label">Patients admitted</p>
@@ -260,11 +263,7 @@ export default function AdminDashboard({ hospitalId }) {
               ))}
             </div>
 
-            <BedCategorySummary
-              beds={selectedHospital.beds}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
+            {!isClinic && <BedCategorySummary beds={selectedHospital.beds} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />}
 
             <div>
               <p className="eyebrow" style={{ marginTop: "4px" }}>On-Duty Doctors</p>
@@ -282,7 +281,7 @@ export default function AdminDashboard({ hospitalId }) {
             </div>
           </section>
 
-          <PermissionGate requires="manage_beds">
+          {!isClinic && <PermissionGate requires="manage_beds">
             <BedController
               category={selectedCategory}
               beds={selectedHospital.beds}
@@ -295,16 +294,20 @@ export default function AdminDashboard({ hospitalId }) {
               }}
               onUpdateBeds={handleUpdateBeds}
             />
-          </PermissionGate>
+          </PermissionGate>}
         </div>
       ) : null}
 
-      <PermissionGate requires="manage_transfers">
+      {!isClinic && <PermissionGate requires="manage_transfers">
         <TransferPanel hospitalName={selectedHospital?.name} />
-      </PermissionGate>
+      </PermissionGate>}
       <PermissionGate requires="view_patients">
         <AppointmentRequests />
       </PermissionGate>
+      <PermissionGate requires="manage_inventory">
+        {selectedHospital && <InventoryManagement hospitalId={selectedHospital.id} />}
+      </PermissionGate>
+      <PermissionGate requires="manage_billing"><Billing /></PermissionGate>
     </section>
   );
 }

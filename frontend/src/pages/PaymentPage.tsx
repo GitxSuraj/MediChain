@@ -6,6 +6,7 @@ import './PaymentPage.css';
 interface PaymentState {
   orderId: string;
   amount: number;
+  keyId: string;
   appointmentId: string;
   hospitalName: string;
   doctorName: string;
@@ -43,7 +44,7 @@ export default function PaymentPage() {
 
   if (!state) return null;
 
-  const { orderId, amount, appointmentId, hospitalName, doctorName, specialty, date, time } = state;
+  const { orderId, amount, keyId, appointmentId, hospitalName, doctorName, specialty, date, time } = state;
   const amountRupees = (amount / 100).toLocaleString('en-IN');
 
   const formattedDate = date
@@ -57,14 +58,13 @@ export default function PaymentPage() {
     }
     setErrorMsg('');
 
-    const key = import.meta.env.VITE_RAZORPAY_KEY_ID;
-    if (!key || key === 'rzp_test_1234567890') {
-      setErrorMsg('Razorpay Key ID is not configured. Add VITE_RAZORPAY_KEY_ID to frontend/.env and restart the dev server.');
+    if (!keyId) {
+      setErrorMsg('Payment checkout is not configured. Please restart your booking.');
       return;
     }
 
     const options = {
-      key,
+      key: keyId,
       amount: amount.toString(),
       currency: 'INR',
       name: 'MediChain',
@@ -269,17 +269,6 @@ export default function PaymentPage() {
                   Pay ₹{amountRupees} Now
                 </>
               )}
-            </button>
-          )}
-
-          {/* DEV-ONLY: Skip Razorpay and simulate a successful payment */}
-          {import.meta.env.DEV && status === 'idle' && (
-            <button
-              className="pp-simulate-btn"
-              onClick={() => setStatus('success')}
-              title="Only visible in development mode — simulates a paid appointment"
-            >
-              ⚡ Simulate Approval (Dev Only)
             </button>
           )}
 
