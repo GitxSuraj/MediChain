@@ -11,6 +11,7 @@ from models.hospital import HospitalSeed
 SEED_HOSPITALS = [
     {
         "name": "CityCare General Hospital",
+        "type": "hospital",
         "city": "Delhi",
         "facilities": ["Emergency", "ICU", "Oxygen", "Pharmacy"],
         "beds": {
@@ -22,6 +23,7 @@ SEED_HOSPITALS = [
     },
     {
         "name": "Lotus Multispeciality Center",
+        "type": "hospital",
         "city": "Mumbai",
         "facilities": ["Cardiology", "Emergency", "ICU", "Diagnostics"],
         "beds": {
@@ -33,6 +35,7 @@ SEED_HOSPITALS = [
     },
     {
         "name": "Sunrise Trauma Institute",
+        "type": "hospital",
         "city": "Bengaluru",
         "facilities": ["Trauma", "Emergency", "ICU", "Blood Bank"],
         "beds": {
@@ -44,6 +47,7 @@ SEED_HOSPITALS = [
     },
     {
         "name": "Green Valley Women's Hospital",
+        "type": "hospital",
         "city": "Pune",
         "facilities": ["Maternity", "Neonatal ICU", "Emergency", "Oxygen"],
         "beds": {
@@ -55,6 +59,7 @@ SEED_HOSPITALS = [
     },
     {
         "name": "NorthStar Children's Medical",
+        "type": "hospital",
         "city": "Chennai",
         "facilities": ["Pediatrics", "Emergency", "ICU", "Diagnostics"],
         "beds": {
@@ -63,6 +68,20 @@ SEED_HOSPITALS = [
             "oxygen": {"total": 22, "available": 8},
             "emergency": {"total": 10, "available": 4},
         },
+    },
+    {
+        "name": "CarePoint Family Clinic",
+        "type": "clinic",
+        "city": "Delhi",
+        "facilities": ["General Practice", "Diagnostics", "Pharmacy"],
+        "beds": {"general": {"total": 0, "available": 0}, "icu": {"total": 0, "available": 0}, "oxygen": {"total": 0, "available": 0}, "emergency": {"total": 0, "available": 0}},
+    },
+    {
+        "name": "WellSpring Community Clinic",
+        "type": "clinic",
+        "city": "Bengaluru",
+        "facilities": ["General Practice", "Vaccination", "Pharmacy"],
+        "beds": {"general": {"total": 0, "available": 0}, "icu": {"total": 0, "available": 0}, "oxygen": {"total": 0, "available": 0}, "emergency": {"total": 0, "available": 0}},
     },
 ]
 

@@ -122,7 +122,7 @@ def hospital_login(payload: HospitalLoginRequest):
         raise HTTPException(404, "Hospital account is not configured.")
     token = secrets.token_urlsafe(32)
     db.sessions.insert_one({"token": token, "role": "hospital", "hospital_id": payload.hospital_id, "createdAt": datetime.now(timezone.utc)})
-    return {"token": token, "hospital": {"id": payload.hospital_id, "name": hospital["name"], "city": hospital["city"]}}
+    return {"token": token, "hospital": {"id": payload.hospital_id, "name": hospital["name"], "city": hospital["city"], "type": hospital.get("type", "hospital")}}
 
 
 @router.get("/me")

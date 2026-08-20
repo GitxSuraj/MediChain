@@ -20,6 +20,7 @@ class HospitalSeed(BaseModel):
     city: str
     facilities: list[str]
     beds: HospitalBeds
+    type: Literal["hospital", "clinic"] = "hospital"
 
 
 class HospitalResponse(HospitalSeed):
