@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 import './DashboardCard.css';
 import type { HealthMetric } from '../services/patient';
 
-const METRIC_ICONS: Record<HealthMetric['icon'], JSX.Element> = {
+const METRIC_ICONS: Record<HealthMetric['icon'], ReactElement> = {
   heart: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M12 21s-7-4.35-9.5-8.5C.8 9 2 5.5 5.5 4.7 8 4.1 10 5 12 7c2-2 4-2.9 6.5-2.3C22 5.5 23.2 9 21.5 12.5 19 16.65 12 21 12 21z" />

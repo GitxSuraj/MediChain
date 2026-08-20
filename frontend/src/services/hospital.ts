@@ -1,31 +1,152 @@
-/** Hospital directory and booking now use the same MongoDB hospital records as live beds. */
-export interface Doctor { id: string; name: string; specialty: string; }
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+export interface BedInfo {
+  total: number;
+  available: number;
+}
+
 export interface Hospital {
-  id: string; name: string; rating: number; distanceKm: number; availableDoctors: number;
-  emergencyAvailable: boolean; emergencyPhone?: string; address: string; specialties: string[]; doctors: Doctor[];
-  beds?: Record<string, { total: number; available: number }>;
+  id: string;
+  name: string;
+  city: string;
+  facilities: string[];
+  beds: {
+    general: BedInfo;
+    icu: BedInfo;
+    oxygen: BedInfo;
+    emergency: BedInfo;
+    /** May be absent on hospitals seeded before this field existed — UI must handle that. */
+    ventilators?: BedInfo;
+  };
+  latitude: number | null;
+  longitude: number | null;
+  /** Merged in from the reviews API — undefined until fetched. */
+  averageRating?: number;
+  reviewCount?: number;
 }
-export interface HospitalFilters { query?: string; specialty?: string; emergencyOnly?: boolean; sortBy?: 'distance' | 'rating'; }
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const DOCTORS = [
-  { id: 'doctor-1', name: 'Dr. Asha Mehta', specialty: 'General Physician' },
-  { id: 'doctor-2', name: 'Dr. Ravi Kumar', specialty: 'Emergency Medicine' },
-  { id: 'doctor-3', name: 'Dr. Neha Singh', specialty: 'ICU Intensivist' },
-];
-async function records(): Promise<Hospital[]> {
-  const res = await fetch(`${API}/hospitals`); const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || 'Unable to load hospitals.');
-  return data.map((h: any, index: number) => ({ id: h.id, name: h.name, rating: 4.5, distanceKm: index + 1,
-    availableDoctors: DOCTORS.length, emergencyAvailable: Boolean(h.beds?.emergency?.available),
-    address: `${h.city}`, specialties: h.facilities || [], doctors: DOCTORS, beds: h.beds }));
+
+export interface HospitalFilters {
+  query?: string;
+  specialty?: string;
+  emergencyOnly?: boolean;
+  sortBy?: "distance" | "rating";
+  userLat?: number;
+  userLng?: number;
 }
-export const ALL_SPECIALTIES = ['Emergency', 'ICU', 'Oxygen', 'Cardiology', 'Pediatrics', 'Trauma', 'Maternity'];
-export async function getNearbyHospitals(limit = 3): Promise<Hospital[]> { return (await records()).slice(0, limit); }
+
+interface RatingSummary {
+  average_rating: number;
+  review_count: number;
+}
+
+async function fetchRawHospitals(): Promise<Hospital[]> {
+  const response = await fetch(`${API_URL}/hospitals`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch hospitals");
+  }
+  return response.json();
+}
+
+/** Attaches real average_rating/review_count from the reviews API. Never invents fake ratings. */
+export async function attachRatings(hospitals: Hospital[]): Promise<Hospital[]> {
+  if (hospitals.length === 0) return hospitals;
+
+  try {
+    const ids = hospitals.map((h) => h.id).join(",");
+    const response = await fetch(`${API_URL}/hospitals/ratings?hospital_ids=${encodeURIComponent(ids)}`);
+    if (!response.ok) return hospitals;
+
+    const summaries: Record<string, RatingSummary> = await response.json();
+    return hospitals.map((h) => ({
+      ...h,
+      averageRating: summaries[h.id]?.average_rating ?? 0,
+      reviewCount: summaries[h.id]?.review_count ?? 0,
+    }));
+  } catch {
+    // Ratings are an enhancement — if the ratings service is unreachable,
+    // still return real hospital data rather than blocking the page.
+    return hospitals;
+  }
+}
+
+export function haversineDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export async function getNearbyHospitals(limit: number = 3): Promise<Hospital[]> {
+  const hospitals = await fetchRawHospitals();
+  return attachRatings(hospitals.slice(0, limit));
+}
+
 export async function getAllHospitals(filters?: HospitalFilters): Promise<Hospital[]> {
-  let items = await records();
-  if (filters?.query) { const q = filters.query.toLowerCase(); items = items.filter(h => h.name.toLowerCase().includes(q) || h.address.toLowerCase().includes(q)); }
-  if (filters?.specialty) items = items.filter(h => h.specialties.some(s => s.toLowerCase() === filters.specialty!.toLowerCase()));
-  if (filters?.emergencyOnly) items = items.filter(h => h.emergencyAvailable);
-  return items;
+  let hospitals = await fetchRawHospitals();
+
+  if (filters?.query) {
+    const q = filters.query.toLowerCase();
+    hospitals = hospitals.filter(
+      (h) => h.name.toLowerCase().includes(q) || h.city.toLowerCase().includes(q)
+    );
+  }
+
+  if (filters?.specialty) {
+    hospitals = hospitals.filter((h) => h.facilities.includes(filters.specialty!));
+  }
+
+  if (filters?.emergencyOnly) {
+    hospitals = hospitals.filter((h) => (h.beds.emergency?.available ?? 0) > 0);
+  }
+
+  const withRatings = await attachRatings(hospitals);
+
+  if (filters?.sortBy === "rating") {
+    withRatings.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+  } else if (filters?.sortBy === "distance" && filters.userLat != null && filters.userLng != null) {
+    withRatings.sort((a, b) => {
+      const distA =
+        a.latitude != null && a.longitude != null
+          ? haversineDistanceKm(filters.userLat!, filters.userLng!, a.latitude, a.longitude)
+          : Infinity;
+      const distB =
+        b.latitude != null && b.longitude != null
+          ? haversineDistanceKm(filters.userLat!, filters.userLng!, b.latitude, b.longitude)
+          : Infinity;
+      return distA - distB;
+    });
+  }
+
+  return withRatings;
 }
-export async function getHospitalById(id: string): Promise<Hospital | undefined> { return (await records()).find(h => h.id === id); }
+
+export async function getHospitalById(id: string): Promise<Hospital | undefined> {
+  const hospitals = await fetchRawHospitals();
+  const match = hospitals.find((h) => h.id === id);
+  if (!match) return undefined;
+  const [withRating] = await attachRatings([match]);
+  return withRating;
+}
+
+export const ALL_SPECIALTIES = [
+  "Emergency",
+  "ICU",
+  "Oxygen",
+  "Pharmacy",
+  "Cardiology",
+  "Diagnostics",
+  "Pediatrics",
+  "Trauma",
+  "Blood Bank",
+  "Maternity",
+  "Neonatal ICU",
+];

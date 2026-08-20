@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 import './QuickActionCard.css';
 
 interface QuickActionCardProps {
   label: string;
   description: string;
   path: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   accent: 'teal' | 'violet' | 'coral' | 'amber';
 }
 

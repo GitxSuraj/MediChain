@@ -11,28 +11,37 @@ type SortOption = 'distance' | 'rating';
 export default function HospitalDirectory() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [specialty, setSpecialty] = useState('All');
   const [emergencyOnly, setEmergencyOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
 
-  useEffect(() => {
+  function load() {
     setLoading(true);
+    setError(null);
     const timer = setTimeout(() => {
       getAllHospitals({
         query,
         specialty: specialty === 'All' ? undefined : specialty,
         emergencyOnly,
         sortBy,
-      }).then((data) => {
-        setHospitals(data);
-        setLoading(false);
-      });
+      })
+        .then((data) => {
+          setHospitals(data);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError('Could not load hospitals. Please check your connection.');
+          setLoading(false);
+        });
     }, 250); // light debounce for search typing
 
     return () => clearTimeout(timer);
-  }, [query, specialty, emergencyOnly, sortBy]);
+  }
+
+  useEffect(load, [query, specialty, emergencyOnly, sortBy]);
 
   const specialtyOptions = useMemo(
     () => ['All', ...ALL_SPECIALTIES],
@@ -79,6 +88,11 @@ export default function HospitalDirectory() {
             <div key={i} className="skeleton" style={{ height: 300, borderRadius: 'var(--radius-lg)' }} />
           ))}
         </div>
+      ) : error ? (
+        <div className="hospital-directory__empty card-surface">
+          <p>{error}</p>
+          <button className="btn btn-secondary" onClick={load}>Retry</button>
+        </div>
       ) : hospitals.length === 0 ? (
         <div className="hospital-directory__empty card-surface">
           <p>No hospitals match your filters.</p>
@@ -102,4 +116,4 @@ export default function HospitalDirectory() {
       )}
     </div>
   );
-}
+}

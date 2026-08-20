@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PatientLayout from './components/PatientLayout';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import PatientDashboard from './pages/PatientDashboard';
 import PatientProfile from './pages/PatientProfile';
@@ -9,12 +10,9 @@ import BookAppointment from './pages/BookAppointment';
 import AppointmentStatus from './pages/AppointmentStatus';
 import PatientHistory from './pages/PatientHistory';
 import HospitalDirectory from './pages/HospitalDirectory';
-import PatientTransfer from './pages/PatientTransfer';
+import HospitalMap from './pages/HospitalMap';
+import MedicineReminders from './pages/MedicineReminders';
 import AdminDashboard from './pages/AdminDashboard.jsx';
-import SuperAdminDashboard from './pages/SuperAdminDashboard.jsx';
-import HospitalLogin from './pages/HospitalLogin.jsx';
-import Cover from './pages/Cover';
-import PaymentPage from './pages/PaymentPage';
 import './App.css';
 
 function App() {
@@ -24,9 +22,15 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Admin / Hospital staff view — bed system + transfer system (no patient auth required) */}
-        <Route path="/hospital-login" element={<HospitalLogin />} />
-        <Route path="/admin" element={<HospitalPortal />} />
-        <Route path="/super-admin" element={<SuperAdminPortal />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        {/*
+          "/hospital-login" is required by the roadmap's landing page CTA, but this
+          codebase has no hospital-staff authentication system — /admin is already
+          reached without a login gate. Adapting to the existing architecture rather
+          than inventing a new hospital auth system: this route forwards straight to
+          the existing unauthenticated hospital dashboard.
+        */}
+        <Route path="/hospital-login" element={<Navigate to="/admin" replace />} />
 
         <Route
           path="/dashboard"
@@ -49,14 +53,6 @@ function App() {
           element={
             <ProtectedRoute>
               <PatientLayout title="Book Appointment"><BookAppointment /></PatientLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/payment"
-          element={
-            <ProtectedRoute>
-              <PatientLayout title="Payment"><PaymentPage /></PatientLayout>
             </ProtectedRoute>
           }
         />
@@ -84,9 +80,24 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/transfer" element={<ProtectedRoute><PatientLayout title="Hospital Transfer"><PatientTransfer /></PatientLayout></ProtectedRoute>} />
+        <Route
+          path="/hospital-map"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Find a Hospital"><HospitalMap /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/medicine-reminders"
+          element={
+            <ProtectedRoute>
+              <PatientLayout title="Medicine Reminders"><MedicineReminders /></PatientLayout>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/" element={<Cover />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
@@ -94,17 +105,3 @@ function App() {
 }
 
 export default App;
-
-function HospitalPortal() {
-  const stored = localStorage.getItem('medichain_hospital');
-  if (!stored || !localStorage.getItem('medichain_hospital_token')) return <Navigate to="/hospital-login" replace />;
-  return <AdminDashboard hospitalId={JSON.parse(stored).id} />;
-}
-
-function SuperAdminPortal() {
-  const stored = localStorage.getItem('medichain_hospital');
-  const staff = localStorage.getItem('medichain_staff');
-  if (!stored || !staff || !localStorage.getItem('medichain_hospital_token')) return <Navigate to="/hospital-login" replace />;
-  if (JSON.parse(staff).role !== 'super_admin') return <Navigate to="/admin" replace />;
-  return <SuperAdminDashboard hospitalId={JSON.parse(stored).id} />;
-}

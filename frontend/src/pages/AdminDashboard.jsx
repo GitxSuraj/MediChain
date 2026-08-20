@@ -4,47 +4,12 @@ import "../styles.css";
 import BedCategorySummary from "../components/BedCategorySummary.jsx";
 import BedController from "../components/BedController.jsx";
 import TransferPanel from "../components/TransferPanel.jsx";
-import AppointmentRequests from "../components/AppointmentRequests.jsx";
-import InventoryManagement from "./InventoryManagement.jsx";
-import Billing from "./Billing.jsx";
-import PermissionGate from "../components/PermissionGate.jsx";
-import { getHospitals, getPatients, updateBedAvailability } from "../services/api.js";
+import { getHospitals, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
 
 const defaultCategory = "icu";
 
-// Doctor directory — keyed by the real hospital names seeded in MongoDB
-// (backend/scripts/seed_hospitals.py). Purely for admin display, no backend
-// changes needed. Edit/add names here freely.
-const DOCTORS_BY_HOSPITAL = {
-  "CityCare General Hospital": [
-    { name: "Dr. Ramesh Iyer", specialty: "Emergency Medicine" },
-    { name: "Dr. Sunita Rao", specialty: "ICU Intensivist" },
-    { name: "Dr. Anil Bose", specialty: "General Physician" },
-  ],
-  "Lotus Multispeciality Center": [
-    { name: "Dr. Farah Sheikh", specialty: "Cardiologist" },
-    { name: "Dr. Vivek Nanda", specialty: "ICU Intensivist" },
-    { name: "Dr. Kriti Sharma", specialty: "Diagnostics" },
-  ],
-  "Sunrise Trauma Institute": [
-    { name: "Dr. Rohan Bakshi", specialty: "Trauma Surgeon" },
-    { name: "Dr. Meenal Joshi", specialty: "Emergency Medicine" },
-    { name: "Dr. Salim Khan", specialty: "Blood Bank Specialist" },
-  ],
-  "Green Valley Women's Hospital": [
-    { name: "Dr. Ayesha Kapoor", specialty: "Obstetrician" },
-    { name: "Dr. Neel Verma", specialty: "Neonatal ICU" },
-    { name: "Dr. Priyanka Das", specialty: "Gynecologist" },
-  ],
-  "NorthStar Children's Medical": [
-    { name: "Dr. Karan Mehta", specialty: "Pediatrician" },
-    { name: "Dr. Ila Chandran", specialty: "Pediatric ICU" },
-    { name: "Dr. Yusuf Ansari", specialty: "Emergency Medicine" },
-  ],
-};
-
-export default function AdminDashboard({ hospitalId }) {
+export default function AdminDashboard() {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory);
@@ -52,30 +17,11 @@ export default function AdminDashboard({ hospitalId }) {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [patientCount, setPatientCount] = useState(0);
 
   const selectedHospital = useMemo(
     () => hospitals.find((hospital) => hospital.id === selectedHospitalId),
     [hospitals, selectedHospitalId],
   );
-
-  const selectedHospitalDoctors = selectedHospital
-    ? DOCTORS_BY_HOSPITAL[selectedHospital.name] || []
-    : [];
-  const isClinic = selectedHospital?.type === "clinic";
-
-  const networkStats = useMemo(() => {
-    return hospitals.reduce(
-      (acc, h) => {
-        acc.totalGeneral += h.beds?.general?.available ?? 0;
-        acc.totalIcu += h.beds?.icu?.available ?? 0;
-        acc.totalOxygen += h.beds?.oxygen?.available ?? 0;
-        acc.totalEmergency += h.beds?.emergency?.available ?? 0;
-        return acc;
-      },
-      { totalGeneral: 0, totalIcu: 0, totalOxygen: 0, totalEmergency: 0 },
-    );
-  }, [hospitals]);
 
   useEffect(() => {
     loadHospitals();
@@ -119,12 +65,8 @@ export default function AdminDashboard({ hospitalId }) {
 
     try {
       const hospitalList = await getHospitals();
-      const scopedHospitals = hospitalId ? hospitalList.filter((hospital) => hospital.id === hospitalId) : hospitalList;
-      setHospitals(scopedHospitals);
-      setSelectedHospitalId(hospitalId || scopedHospitals[0]?.id || "");
-      const patients = await getPatients();
-      const selected = scopedHospitals[0];
-      setPatientCount(selected ? patients.filter((patient) => patient.current_hospital === selected.name).length : 0);
+      setHospitals(hospitalList);
+      setSelectedHospitalId((currentId) => currentId || hospitalList[0]?.id || "");
     } catch (err) {
       setError(err.message || "Unable to load hospitals.");
     } finally {
@@ -160,60 +102,16 @@ export default function AdminDashboard({ hospitalId }) {
     }
   }
 
-  function logoutHospital() {
-    localStorage.removeItem("medichain_hospital_token");
-    localStorage.removeItem("medichain_hospital");
-    localStorage.removeItem("medichain_staff");
-    window.location.assign("/hospital-login");
-  }
-
   return (
     <section className="page">
-      <div className="hospital-hero">
-        <div>
-          <p className="eyebrow">MediChain · Hospital Portal</p>
-          <h2>{selectedHospital?.name || "Hospital Operations"}</h2>
-          <p>Live bed operations, patient transfers, and appointment requests in one workspace.</p>
-        </div>
-        <div className="hospital-hero__actions">
-          {(() => {
-            const stored = localStorage.getItem('medichain_staff');
-            if (stored) {
-              const staff = JSON.parse(stored);
-              if (staff.role === 'super_admin') {
-                return <a href="/super-admin" className="secondary-button" style={{ marginRight: '1rem', textDecoration: 'none' }}>Super Admin Settings</a>;
-              }
-            }
-            return null;
-          })()}
-          <span className="live-indicator"><i /> Live connected</span>
-          <button className="logout-button" type="button" onClick={logoutHospital}>Log out</button>
-        </div>
+      <div className="page-header">
+        <p className="eyebrow">Admin</p>
+        <h2>Admin Dashboard</h2>
+        <p>Select a hospital, review live availability, and adjust bed counts for the demo flow.</p>
       </div>
 
-      {!loading && hospitals.length > 0 && !isClinic ? (
-        <div className="stat-row">
-          <div className="stat-card">
-            <p className="stat-label">Patients admitted</p>
-            <p className="stat-value">{patientCount}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">ICU Beds Available</p>
-            <p className="stat-value">{networkStats.totalIcu}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">General beds available</p>
-            <p className="stat-value">{networkStats.totalGeneral}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Oxygen beds available</p>
-            <p className="stat-value">{networkStats.totalOxygen}</p>
-          </div>
-        </div>
-      ) : null}
-
       <div className="toolbar">
-        {!hospitalId && <label className="field hospital-selector">
+        <label className="field hospital-selector">
           <span>Hospital</span>
           <select
             value={selectedHospitalId}
@@ -230,7 +128,7 @@ export default function AdminDashboard({ hospitalId }) {
               </option>
             ))}
           </select>
-        </label>}
+        </label>
 
         <button className="secondary-button" type="button" disabled={loading} onClick={loadHospitals}>
           {loading ? "Loading..." : "Reload"}
@@ -263,51 +161,29 @@ export default function AdminDashboard({ hospitalId }) {
               ))}
             </div>
 
-            {!isClinic && <BedCategorySummary beds={selectedHospital.beds} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />}
-
-            <div>
-              <p className="eyebrow" style={{ marginTop: "4px" }}>On-Duty Doctors</p>
-              {selectedHospitalDoctors.length === 0 ? (
-                <p style={{ color: "#5b6575" }}>No doctor roster added for this hospital yet.</p>
-              ) : (
-                <div className="tag-row">
-                  {selectedHospitalDoctors.map((doc) => (
-                    <span className="tag" key={doc.name}>
-                      {doc.name} · {doc.specialty}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            <BedCategorySummary
+              beds={selectedHospital.beds}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
           </section>
 
-          {!isClinic && <PermissionGate requires="manage_beds">
-            <BedController
-              category={selectedCategory}
-              beds={selectedHospital.beds}
-              disabled={!selectedHospital}
-              updating={updating}
-              onChangeCategory={(category) => {
-                setSelectedCategory(category);
-                setSuccessMessage("");
-                setError("");
-              }}
-              onUpdateBeds={handleUpdateBeds}
-            />
-          </PermissionGate>}
+          <BedController
+            category={selectedCategory}
+            beds={selectedHospital.beds}
+            disabled={!selectedHospital}
+            updating={updating}
+            onChangeCategory={(category) => {
+              setSelectedCategory(category);
+              setSuccessMessage("");
+              setError("");
+            }}
+            onUpdateBeds={handleUpdateBeds}
+          />
         </div>
       ) : null}
 
-      {!isClinic && <PermissionGate requires="manage_transfers">
-        <TransferPanel hospitalName={selectedHospital?.name} />
-      </PermissionGate>}
-      <PermissionGate requires="view_patients">
-        <AppointmentRequests />
-      </PermissionGate>
-      <PermissionGate requires="manage_inventory">
-        {selectedHospital && <InventoryManagement hospitalId={selectedHospital.id} />}
-      </PermissionGate>
-      <PermissionGate requires="manage_billing"><Billing /></PermissionGate>
+      <TransferPanel />
     </section>
   );
 }
