@@ -19,8 +19,12 @@ class AppointmentRequest(BaseModel):
     time: str
 
 def serialize(item: dict) -> dict:
-    item["id"] = str(item.pop("_id"))
-    return item
+    result = dict(item)
+    result["id"] = str(result.pop("_id"))
+    # Patient ownership is stored as an ObjectId but API responses must be JSON-safe.
+    if isinstance(result.get("patient_id"), ObjectId):
+        result["patient_id"] = str(result["patient_id"])
+    return result
 
 @router.get("")
 def list_appointments(authorization: str | None = Header(default=None)):

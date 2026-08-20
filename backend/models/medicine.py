@@ -29,5 +29,7 @@ def medicine_document(payload: MedicineCreate, hospital_id: str) -> dict:
     document = payload.model_dump()
     if document["expiry_date"] <= date.today():
         raise ValueError("Expiry date must be in the future.")
+    # BSON supports datetimes but not ``datetime.date`` values.
+    document["expiry_date"] = document["expiry_date"].isoformat()
     document.update({"hospital_id": hospital_id, "created_at": datetime.now(timezone.utc)})
     return document
