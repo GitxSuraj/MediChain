@@ -9,6 +9,8 @@ from routes.hospital_auth import get_current_staff
 router = APIRouter(prefix="/hospitals/{hospital_id}/inventory", tags=["inventory"])
 def access(hospital_id, staff=Depends(get_current_staff)):
     if staff.get("hospital_id") != hospital_id: raise HTTPException(403, "You can only manage your own inventory.")
+    if staff.get("role") != "super_admin" and "manage_inventory" not in staff.get("permissions", []):
+        raise HTTPException(403, "Inventory permission is required.")
     return staff
 def valid_hospital(hospital_id):
     from bson import ObjectId

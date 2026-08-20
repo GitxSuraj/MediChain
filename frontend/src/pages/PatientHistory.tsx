@@ -20,16 +20,16 @@ export default function PatientHistory() {
   const [history, setHistory] = useState<MedicalHistoryEntry[]>([]);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState<FilterValue>('All');
   const [query, setQuery] = useState('');
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([getFullMedicalHistory(user.id), getPatientProfile(user.id)]).then(([h, p]) => {
-      setHistory(h);
-      setProfile(p);
-      setLoading(false);
-    });
+    Promise.all([getFullMedicalHistory(user.id), getPatientProfile(user.id)])
+      .then(([h, p]) => { setHistory(h); setProfile(p); })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Could not load medical history.'))
+      .finally(() => setLoading(false));
   }, [user]);
 
   const counts = useMemo(() => {
@@ -89,6 +89,8 @@ export default function PatientHistory() {
             <div key={i} className="skeleton" style={{ height: 160, borderRadius: 'var(--radius-lg)' }} />
           ))}
         </div>
+      ) : error ? (
+        <div className="patient-history__empty card-surface"><p>{error}</p></div>
       ) : filtered.length === 0 ? (
         <div className="patient-history__empty card-surface">
           <p>No records match your search.</p>
