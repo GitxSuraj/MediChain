@@ -132,5 +132,6 @@ export const deleteMedicine = (hospitalId, medicineId) => hospitalRequest(`/hosp
 export const dispenseMedicine = (hospitalId, medicineId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}/dispense`, { method: "POST", body: JSON.stringify(payload) });
 export const generateBill = (payload) => hospitalRequest("/billing/generate", { method: "POST", body: JSON.stringify(payload) });
 export const updateBillStatus = (billId, status) => hospitalRequest(`/billing/${encodeURIComponent(billId)}/status`, { method: "PUT", body: JSON.stringify({ status }) });
+export const addVisitRecord = (patientId, payload) => hospitalRequest(`/patients/${encodeURIComponent(patientId)}/history`, { method: "POST", body: JSON.stringify(payload) });
 
 export { API_BASE_URL, request };

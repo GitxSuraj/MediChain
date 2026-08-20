@@ -6,6 +6,7 @@ import BedController from "../components/BedController.jsx";
 import TransferPanel from "../components/TransferPanel.jsx";
 import AppointmentRequests from "../components/AppointmentRequests.jsx";
 import InventoryManagement from "./InventoryManagement.jsx";
+import Billing from "./Billing.jsx";
 import PermissionGate from "../components/PermissionGate.jsx";
 import { getHospitals, getPatients, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
@@ -306,6 +307,7 @@ export default function AdminDashboard({ hospitalId }) {
       <PermissionGate requires="manage_inventory">
         {selectedHospital && <InventoryManagement hospitalId={selectedHospital.id} />}
       </PermissionGate>
+      <PermissionGate requires="manage_billing"><Billing /></PermissionGate>
     </section>
   );
 }
