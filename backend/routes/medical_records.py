@@ -29,6 +29,8 @@ def serialize(doc):
     }
 @router.post("/{patient_id}/history", status_code=201)
 def add_history(patient_id: str, payload: VisitRecord, staff=Depends(get_current_staff)):
+    if staff.get("role") != "super_admin" and "view_patients" not in staff.get("permissions", []):
+        raise HTTPException(403, "Patient-record permission is required.")
     db = get_database()
     try: patient = db.patients.find_one({"_id": ObjectId(patient_id)})
     except Exception as exc: raise HTTPException(400, "Invalid patient ID.") from exc
@@ -52,7 +54,11 @@ def get_history(patient_id: str, authorization: str | None = Header(default=None
     if session.get("patient_id") and str(session["patient_id"]) != patient_id: raise HTTPException(403, "You can only access your own history.")
     if session.get("role") == "hospital_staff":
         # Staff access is scoped to records created by their hospital.
-        staff = db.hospital_staff.find_one({"_id": session["staff_id"]}); query = {"patient_id": patient_id, "hospital_id": staff["hospital_id"]}
-    else: query = {"patient_id": patient_id}
+        staff = db.hospital_staff.find_one({"_id": session["staff_id"]})
+        if not staff: raise HTTPException(401, "Staff account was not found.")
+        query = {"patient_id": patient_id, "hospital_id": staff["hospital_id"]}
+    elif session.get("role") == "hospital": query = {"patient_id": patient_id, "hospital_id": session["hospital_id"]}
+    elif session.get("patient_id"): query = {"patient_id": patient_id}
+    else: raise HTTPException(403, "You cannot access this history.")
     records = list(db[HISTORY_COLLECTION].find(query)) + list(db[LEGACY_HISTORY_COLLECTION].find(query))
     return [serialize(x) for x in sorted(records, key=lambda record: record["date"], reverse=True)]

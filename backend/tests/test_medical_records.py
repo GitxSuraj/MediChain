@@ -1,8 +1,10 @@
 from datetime import date
 
+import pytest
+from fastapi import HTTPException
 from pydantic import ValidationError
 
-from routes.medical_records import VisitRecord, serialize
+from routes.medical_records import VisitRecord, add_history, serialize
 
 
 def test_visit_record_requires_an_appointment_id():
@@ -28,3 +30,10 @@ def test_history_serialization_matches_the_public_contract():
 
 def test_history_serialization_accepts_a_database_date_string():
     assert serialize({"date": "2026-08-20", "diagnosis": "D", "doctor_name": "Dr", "hospital_name": "H"})["date"] == "2026-08-20"
+
+
+def test_visit_record_requires_patient_record_permission():
+    with pytest.raises(HTTPException) as error:
+        add_history("not-used", VisitRecord(appointment_id="x" * 24, date=date.today(), diagnosis="D", doctor_name="Dr", hospital_name="H"), {"role": "staff", "permissions": []})
+
+    assert error.value.status_code == 403
