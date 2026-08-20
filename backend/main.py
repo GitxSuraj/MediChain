@@ -8,6 +8,9 @@ from routes.auth import router as auth_router
 from routes.appointments import router as appointments_router
 from routes.hospital_auth import router as hospital_auth_router
 from routes.payments import router as payments_router
+from routes.inventory import router as inventory_router
+from routes.billing import router as billing_router, patient_bills_router
+from routes.medical_records import router as medical_records_router
 
 
 app = FastAPI(
@@ -38,6 +41,10 @@ app.include_router(auth_router)
 app.include_router(appointments_router)
 app.include_router(hospital_auth_router)
 app.include_router(payments_router)
+app.include_router(inventory_router)
+app.include_router(billing_router)
+app.include_router(patient_bills_router)
+app.include_router(medical_records_router)
 
 
 @app.get("/")

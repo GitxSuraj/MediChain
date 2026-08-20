@@ -120,4 +120,17 @@ export function getHospitalPayments() {
   });
 }
 
+function hospitalRequest(path, options = {}) {
+  const token = localStorage.getItem("medichain_hospital_token");
+  return request(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...options.headers } });
+}
+
+export const getInventory = (hospitalId, search = "") => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+export const addMedicine = (hospitalId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory`, { method: "POST", body: JSON.stringify(payload) });
+export const updateMedicine = (hospitalId, medicineId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}`, { method: "PUT", body: JSON.stringify(payload) });
+export const deleteMedicine = (hospitalId, medicineId) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}`, { method: "DELETE" });
+export const dispenseMedicine = (hospitalId, medicineId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}/dispense`, { method: "POST", body: JSON.stringify(payload) });
+export const generateBill = (payload) => hospitalRequest("/billing/generate", { method: "POST", body: JSON.stringify(payload) });
+export const updateBillStatus = (billId, status) => hospitalRequest(`/billing/${encodeURIComponent(billId)}/status`, { method: "PUT", body: JSON.stringify({ status }) });
+
 export { API_BASE_URL, request };
