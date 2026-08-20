@@ -1,0 +1,91 @@
+.map-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.map-view__banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.map-view__container {
+  height: 460px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.map-view__user-marker span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-violet-500);
+  border: 3px solid var(--color-white);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+.map-view__popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+  font-size: 0.82rem;
+}
+
+.map-view__popup-specialties {
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+}
+
+.map-view__popup-line {
+  font-size: 0.76rem;
+}
+
+.map-view__popup-directions {
+  margin-top: var(--space-2);
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  width: fit-content;
+}
+
+.map-view__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.map-view__list h4 {
+  margin: 0 0 var(--space-1);
+}
+
+.map-view__list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+.map-view__list-item:hover {
+  background: var(--color-surface-alt);
+}
+
+.map-view__list-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.map-view__list-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+}

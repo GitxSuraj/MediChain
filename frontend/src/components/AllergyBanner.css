@@ -1,0 +1,85 @@
+.allergy-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-coral-500);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+}
+
+.allergy-banner__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.allergy-banner__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.allergy-banner__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.allergy-banner__chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.allergy-banner__chip--coral { background: var(--color-coral-100); color: var(--color-coral-600); }
+.allergy-banner__chip--violet { background: var(--color-violet-100); color: var(--color-violet-600); }
+
+.allergy-banner__none {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.allergy-banner__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--color-border);
+}
+
+.allergy-banner__blood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.allergy-banner__blood-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-coral-600);
+}
+
+@media (max-width: 768px) {
+  .allergy-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .allergy-banner__divider {
+    width: 100%;
+    height: 1px;
+  }
+  .allergy-banner__blood {
+    align-items: flex-start;
+  }
+}
