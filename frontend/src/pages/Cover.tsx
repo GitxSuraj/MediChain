@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { 
   ShieldAlert, 
   Users, 
@@ -17,7 +17,7 @@ export default function Cover() {
   const navigate = useNavigate();
 
   // Animation variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -28,12 +28,12 @@ export default function Cover() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+      transition: { duration: 0.5, ease: 'easeOut' }
     }
   };
 
@@ -112,7 +112,7 @@ export default function Cover() {
           className="hero-visual"
           initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.3 }}
         >
           <div className="mockup-container">
             <div className="mockup-header">
