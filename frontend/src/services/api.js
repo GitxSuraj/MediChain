@@ -81,4 +81,43 @@ export function decideHospitalAppointment(appointmentId, status) {
   return request(`/appointments/hospital/${encodeURIComponent(appointmentId)}/decision`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ status }) });
 }
 
-export { API_BASE_URL };
+export function staffLogin(email, password) {
+  return request("/hospital-auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export function createStaffAccount(payload) {
+  const token = localStorage.getItem("medichain_hospital_token");
+  return request("/hospital-auth/signup", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function getStaffList() {
+  const token = localStorage.getItem("medichain_hospital_token");
+  return request("/hospital-auth/staff", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function updateStaffPermissions(staffId, permissions) {
+  const token = localStorage.getItem("medichain_hospital_token");
+  return request(`/hospital-auth/${encodeURIComponent(staffId)}/permissions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ permissions }),
+  });
+}
+
+export function getHospitalPayments() {
+  const token = localStorage.getItem("medichain_hospital_token");
+  return request("/payments/hospital", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export { API_BASE_URL, request };

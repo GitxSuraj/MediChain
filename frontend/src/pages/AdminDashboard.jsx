@@ -5,6 +5,7 @@ import BedCategorySummary from "../components/BedCategorySummary.jsx";
 import BedController from "../components/BedController.jsx";
 import TransferPanel from "../components/TransferPanel.jsx";
 import AppointmentRequests from "../components/AppointmentRequests.jsx";
+import PermissionGate from "../components/PermissionGate.jsx";
 import { getHospitals, getPatients, updateBedAvailability } from "../services/api.js";
 import { createRealtimeSocket } from "../websocket/socket.js";
 
@@ -159,6 +160,7 @@ export default function AdminDashboard({ hospitalId }) {
   function logoutHospital() {
     localStorage.removeItem("medichain_hospital_token");
     localStorage.removeItem("medichain_hospital");
+    localStorage.removeItem("medichain_staff");
     window.location.assign("/hospital-login");
   }
 
@@ -171,6 +173,16 @@ export default function AdminDashboard({ hospitalId }) {
           <p>Live bed operations, patient transfers, and appointment requests in one workspace.</p>
         </div>
         <div className="hospital-hero__actions">
+          {(() => {
+            const stored = localStorage.getItem('medichain_staff');
+            if (stored) {
+              const staff = JSON.parse(stored);
+              if (staff.role === 'super_admin') {
+                return <a href="/super-admin" className="secondary-button" style={{ marginRight: '1rem', textDecoration: 'none' }}>Super Admin Settings</a>;
+              }
+            }
+            return null;
+          })()}
           <span className="live-indicator"><i /> Live connected</span>
           <button className="logout-button" type="button" onClick={logoutHospital}>Log out</button>
         </div>
@@ -270,23 +282,29 @@ export default function AdminDashboard({ hospitalId }) {
             </div>
           </section>
 
-          <BedController
-            category={selectedCategory}
-            beds={selectedHospital.beds}
-            disabled={!selectedHospital}
-            updating={updating}
-            onChangeCategory={(category) => {
-              setSelectedCategory(category);
-              setSuccessMessage("");
-              setError("");
-            }}
-            onUpdateBeds={handleUpdateBeds}
-          />
+          <PermissionGate requires="manage_beds">
+            <BedController
+              category={selectedCategory}
+              beds={selectedHospital.beds}
+              disabled={!selectedHospital}
+              updating={updating}
+              onChangeCategory={(category) => {
+                setSelectedCategory(category);
+                setSuccessMessage("");
+                setError("");
+              }}
+              onUpdateBeds={handleUpdateBeds}
+            />
+          </PermissionGate>
         </div>
       ) : null}
 
-      <TransferPanel hospitalName={selectedHospital?.name} />
-      <AppointmentRequests />
+      <PermissionGate requires="manage_transfers">
+        <TransferPanel hospitalName={selectedHospital?.name} />
+      </PermissionGate>
+      <PermissionGate requires="view_patients">
+        <AppointmentRequests />
+      </PermissionGate>
     </section>
   );
 }

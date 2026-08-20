@@ -4,6 +4,8 @@ import { getAllHospitals, type Hospital, type Doctor } from '../services/hospita
 import { bookAppointment, AVAILABLE_TIME_SLOTS } from '../services/appointment';
 import StepIndicator from '../components/StepIndicator';
 import Toast from '../components/Toast';
+import PaymentCheckout from '../components/PaymentCheckout';
+import { createPaymentOrder } from '../services/payment';
 import './BookAppointment.css';
 
 const STEPS = ['Hospital & Doctor', 'Visit Details', 'Confirm'];
@@ -35,6 +37,8 @@ export default function BookAppointment() {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [bookedId, setBookedId] = useState<string | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<{ orderId: string, amount: number } | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     getAllHospitals().then((data) => {
@@ -99,8 +103,26 @@ export default function BookAppointment() {
         date,
         time,
       });
-      setBookedId(appt.id);
-      setToast({ message: 'Appointment request submitted successfully.', type: 'success' });
+
+      // Create Razorpay order, then navigate to the dedicated payment page
+      const order = await createPaymentOrder({
+        appointment_id: appt.id,
+        amount: 50000, // ₹500 in paise
+        hospital_id: selectedHospital.id,
+      });
+
+      navigate('/payment', {
+        state: {
+          orderId:       order.orderId,
+          amount:        order.amount,
+          appointmentId: appt.id,
+          hospitalName:  selectedHospital.name,
+          doctorName:    selectedDoctor.name,
+          specialty:     selectedDoctor.specialty,
+          date,
+          time,
+        },
+      });
     } catch (err) {
       setToast({ message: err instanceof Error ? err.message : 'Could not book appointment.', type: 'error' });
     } finally {
@@ -108,7 +130,50 @@ export default function BookAppointment() {
     }
   }
 
-  if (bookedId) {
+  if (bookedId && !paymentSuccess) {
+    return (
+      <div className="book-appointment">
+        <div className="card-surface fade-in-up">
+          <div className="booking-pay-screen">
+            {/* Mini step trail */}
+            <div className="booking-pay-screen__steps">
+              <span className="booking-pay-screen__step booking-pay-screen__step--done">
+                <span className="booking-pay-screen__step-dot">✓</span> Booked
+              </span>
+              <span className="booking-pay-screen__arrow">›</span>
+              <span className="booking-pay-screen__step booking-pay-screen__step--active">
+                <span className="booking-pay-screen__step-dot">2</span> Payment
+              </span>
+              <span className="booking-pay-screen__arrow">›</span>
+              <span className="booking-pay-screen__step">
+                <span className="booking-pay-screen__step-dot" style={{ background:'#f1f5f9', color:'#94a3b8' }}>3</span> Confirmed
+              </span>
+            </div>
+
+            <h2>Complete Your Booking</h2>
+            <p>Appointment slot reserved. Pay now to confirm your consultation.</p>
+
+            {paymentOrder ? (
+              <PaymentCheckout
+                orderId={paymentOrder.orderId}
+                amount={paymentOrder.amount}
+                hospitalName={selectedHospital?.name || ''}
+                onSuccess={() => setPaymentSuccess(true)}
+                onClose={() => setToast({ message: 'Payment cancelled. Your slot is still held.', type: 'error' })}
+              />
+            ) : (
+              <div style={{ marginTop: '20px', display: 'flex', gap: '8px', alignItems: 'center', color: '#64748b', fontSize: '0.88rem' }}>
+                <span className="spinner" /> Preparing payment…
+              </div>
+            )}
+          </div>
+        </div>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </div>
+    );
+  }
+
+  if (paymentSuccess) {
     return (
       <div className="book-appointment book-appointment--success">
         <div className="booking-success card-surface fade-in-up">
