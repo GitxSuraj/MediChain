@@ -20,7 +20,6 @@ class AppointmentRequest(BaseModel):
 
 def serialize(item: dict) -> dict:
     item["id"] = str(item.pop("_id"))
-    item.pop("patient_id", None)
     return item
 
 @router.get("")
@@ -66,8 +65,8 @@ def hospital_requests(authorization: str | None = Header(default=None)):
 
 @router.patch("/hospital/{appointment_id}/decision")
 def decide_appointment(appointment_id: str, payload: AppointmentDecision, authorization: str | None = Header(default=None)):
-    if payload.status not in ("Confirmed", "Cancelled"):
-        raise HTTPException(400, "Status must be Confirmed or Cancelled.")
+    if payload.status not in ("Confirmed", "Cancelled", "Completed"):
+        raise HTTPException(400, "Status must be Confirmed, Completed or Cancelled.")
     session = current_hospital_user(authorization)
     try:
         oid = ObjectId(appointment_id)
@@ -76,7 +75,7 @@ def decide_appointment(appointment_id: str, payload: AppointmentDecision, author
     appointment = get_database().appointments.find_one({"_id": oid, "hospitalId": session["hospital_id"]})
     if not appointment:
         raise HTTPException(404, "Appointment request not found for this hospital.")
-    if appointment["status"] != "Pending":
+    if appointment["status"] not in ("Pending", "Confirmed") or (payload.status == "Completed" and appointment["status"] != "Confirmed"):
         raise HTTPException(409, "This appointment has already been processed.")
     get_database().appointments.update_one({"_id": oid}, {"$set": {"status": payload.status}})
     appointment["status"] = payload.status
