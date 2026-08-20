@@ -1,12 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import type { JSX } from 'react';
+import { useState, type ReactElement } from 'react';
 import './Sidebar.css';
 
 interface NavItem {
   label: string;
   path: string;
-  icon: JSX.Element;
+  icon: ReactElement;
 }
 
 const ICONS = {
@@ -41,6 +40,16 @@ const ICONS = {
       <path d="M4 21V8l8-5 8 5v13" /><path d="M9 21v-6h6v6" /><path d="M12 8v4M10 10h4" />
     </svg>
   ),
+  map: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" />
+    </svg>
+  ),
+  reminder: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M10.5 20.5L3.5 13.5a5 5 0 1 1 7-7l7 7a5 5 0 1 1-7 7z" /><path d="M8.5 8.5l7 7" />
+    </svg>
+  ),
   logout: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
@@ -55,7 +64,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Appointment Status', path: '/appointment-status', icon: ICONS.status },
   { label: 'Medical History', path: '/medical-history', icon: ICONS.history },
   { label: 'Hospital Directory', path: '/hospitals', icon: ICONS.hospital },
-  { label: 'Request Transfer', path: '/transfer', icon: ICONS.hospital },
+  { label: 'Find on Map', path: '/hospital-map', icon: ICONS.map },
+  { label: 'Medicine Reminders', path: '/medicine-reminders', icon: ICONS.reminder },
 ];
 
 interface SidebarProps {

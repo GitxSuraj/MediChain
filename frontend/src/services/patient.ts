@@ -186,33 +186,15 @@ export async function getRecentMedicalHistory(
   return delay(sorted.slice(0, limit));
 }
 
-/** GET /patients/:id/history — visit-record contract agreed with hospital operations. */
-export async function getFullMedicalHistory(patientId: string): Promise<MedicalHistoryEntry[]> {
-  const token = localStorage.getItem('medichain_patient_token') || localStorage.getItem('medichain_token');
-  const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/patients/${encodeURIComponent(patientId)}/history`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || 'Could not load medical history.');
-  return body.map((record: { date: string; diagnosis: string; prescription: string; doctor_name: string; hospital_name: string; notes: string }, index: number) => ({
-    id: `${record.date}-${record.doctor_name}-${index}`,
-    date: record.date,
-    type: record.prescription ? 'Prescription' : 'Consultation',
-    title: record.diagnosis,
-    doctor: record.doctor_name,
-    hospital: record.hospital_name,
-    summary: record.notes || record.prescription || record.diagnosis,
-    prescriptionItems: record.prescription ? [{ medicine: record.prescription, dosage: '', duration: '' }] : undefined,
-  }));
+/** TODO(API): GET /api/patients/:id/history/full */
+export async function getFullMedicalHistory(_patientId: string): Promise<MedicalHistoryEntry[]> {
+  const sorted = [...MOCK_HISTORY].sort((a, b) => b.date.localeCompare(a.date));
+  return delay(sorted);
 }
 
 /** TODO(API): GET /api/patients/:id/profile */
 export async function getPatientProfile(_patientId: string): Promise<PatientProfile> {
-  const token = localStorage.getItem('medichain_token');
-  const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/profile`, { headers: { Authorization: `Bearer ${token}` } });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || 'Could not load profile.');
-  return body;
+  return delay({ ...MOCK_PROFILE });
 }
 
 /** TODO(API): PUT /api/patients/:id/profile  body: Partial<PatientProfile> */
@@ -220,11 +202,12 @@ export async function updatePatientProfile(
   _patientId: string,
   updates: Partial<PatientProfile>
 ): Promise<PatientProfile> {
-  const token = localStorage.getItem('medichain_token');
-  const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/profile`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(updates),
-  });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || 'Could not save profile.');
-  return body;
+  if (updates.email && !/\S+@\S+\.\S+/.test(updates.email)) {
+    throw new Error('Please enter a valid email address.');
+  }
+  if (updates.phone && updates.phone.replace(/\D/g, '').length < 10) {
+    throw new Error('Please enter a valid phone number.');
+  }
+  MOCK_PROFILE = { ...MOCK_PROFILE, ...updates };
+  return delay({ ...MOCK_PROFILE }, 900);
 }

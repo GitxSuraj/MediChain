@@ -1,15 +1,15 @@
 import { API_BASE_URL } from "../services/api.js";
 
-function getWebSocketUrl() {
+function getWebSocketUrl(identity) {
   const apiUrl = new URL(API_BASE_URL);
   apiUrl.protocol = apiUrl.protocol === "https:" ? "wss:" : "ws:";
   apiUrl.pathname = "/ws";
-  apiUrl.search = "";
+  apiUrl.search = identity ? `?identity=${encodeURIComponent(identity)}` : "";
   return apiUrl.toString();
 }
 
-export function createRealtimeSocket({ onOpen, onMessage, onClose, onError } = {}) {
-  const socket = new WebSocket(getWebSocketUrl());
+export function createRealtimeSocket({ identity, onOpen, onMessage, onClose, onError } = {}) {
+  const socket = new WebSocket(getWebSocketUrl(identity));
 
   socket.addEventListener("open", () => {
     onOpen?.();

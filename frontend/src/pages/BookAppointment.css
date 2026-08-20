@@ -126,10 +126,9 @@
 }
 
 .time-slot--selected {
-  background: linear-gradient(135deg, var(--color-teal-500), var(--color-violet-500));
+  background: var(--color-teal-600);
   border-color: transparent;
   color: var(--color-white);
-  box-shadow: var(--shadow-glow-teal);
 }
 
 .book-summary {

@@ -24,7 +24,7 @@
 .hospital-modal__banner {
   position: relative;
   height: 130px;
-  background: linear-gradient(135deg, var(--color-navy-800), var(--color-teal-600));
+  background: var(--color-navy-800);
 }
 
 .hospital-modal__close {
@@ -92,7 +92,7 @@
 
 .hospital-modal__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: var(--space-3);
   background: var(--color-surface);
   border-radius: var(--radius-md);
@@ -171,7 +171,7 @@
   height: 38px;
   min-width: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-teal-500), var(--color-violet-500));
+  background: var(--color-teal-600);
   color: var(--color-white);
   display: flex;
   align-items: center;
@@ -197,9 +197,32 @@
   margin-top: var(--space-2);
 }
 
+.hospital-modal__reviews {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hospital-modal__review {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.hospital-modal__review-rating {
+  color: var(--color-amber-500);
+  font-size: 0.9rem;
+}
+
+.hospital-modal__review-comment {
+  margin: var(--space-1) 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
 @media (max-width: 640px) {
   .hospital-modal__stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-2);
   }
 }

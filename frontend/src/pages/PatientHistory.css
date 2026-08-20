@@ -12,7 +12,7 @@
   gap: var(--space-6);
   padding: var(--space-8);
   border-radius: var(--radius-lg);
-  background: linear-gradient(120deg, var(--color-navy-950), var(--color-teal-600) 130%);
+  background: var(--color-navy-900);
   color: var(--color-text-inverse);
   position: relative;
   overflow: hidden;
@@ -246,9 +246,8 @@
 /* Skeletons */
 .skeleton {
   border-radius: var(--radius-lg);
-  background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 37%, var(--color-surface-alt) 63%);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
+  background: var(--color-surface-alt);
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 .skeleton--metric { height: 88px; }
 .skeleton--card { height: 140px; }
@@ -256,8 +255,8 @@
 .skeleton--history { height: 200px; }
 
 @keyframes shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 
 /* Responsive */

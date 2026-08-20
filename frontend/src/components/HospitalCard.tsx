@@ -8,6 +8,9 @@ interface HospitalCardProps {
 }
 
 export default function HospitalCard({ hospital, variant = 'full', onViewDetails }: HospitalCardProps) {
+  const hasEmergency = (hospital.beds.emergency?.available ?? 0) > 0;
+  const hasReviews = (hospital.reviewCount ?? 0) > 0;
+
   return (
     <div className={`hospital-card hospital-card--${variant}`}>
       <div className="hospital-card__image">
@@ -16,7 +19,7 @@ export default function HospitalCard({ hospital, variant = 'full', onViewDetails
             <path d="M4 21V8l8-5 8 5v13" /><path d="M9 21v-6h6v6" /><path d="M12 8v4M10 10h4" />
           </svg>
         </span>
-        {hospital.emergencyAvailable && <span className="hospital-card__emergency-tag">Emergency</span>}
+        {hasEmergency && <span className="hospital-card__emergency-tag">Emergency</span>}
       </div>
 
       <div className="hospital-card__body">
@@ -24,20 +27,26 @@ export default function HospitalCard({ hospital, variant = 'full', onViewDetails
           <h4 className="hospital-card__name">{hospital.name}</h4>
           <span className="hospital-card__rating">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.1 6.6 7.2.8-5.4 4.9 1.5 7.2L12 17.9 5.6 21.5l1.5-7.2L1.7 9.4l7.2-.8z" /></svg>
-            {hospital.rating}
+            {hasReviews ? hospital.averageRating?.toFixed(1) : '—'}
           </span>
         </div>
 
-        <p className="hospital-card__address text-secondary">{hospital.address}</p>
+        <p className="hospital-card__address text-secondary">{hospital.city}</p>
 
         <div className="hospital-card__stats">
-          <span className="hospital-card__stat mono">{hospital.distanceKm} km away</span>
-          <span className="hospital-card__stat mono">{hospital.availableDoctors} doctors</span>
+          <span className="hospital-card__stat mono">
+            {hasReviews ? `${hospital.reviewCount} reviews` : 'No reviews yet'}
+          </span>
+          <span className="hospital-card__stat mono">{hospital.beds.general.available} general beds</span>
+          <span className="hospital-card__stat mono">{hospital.beds.icu.available} ICU</span>
+          <span className="hospital-card__stat mono">
+            {hospital.beds.ventilators ? `${hospital.beds.ventilators.available} ventilators` : 'Ventilators —'}
+          </span>
         </div>
 
         {variant === 'full' && (
           <div className="hospital-card__specialties">
-            {hospital.specialties.slice(0, 3).map((s) => (
+            {hospital.facilities.slice(0, 3).map((s) => (
               <span key={s} className="hospital-card__specialty-tag">{s}</span>
             ))}
           </div>

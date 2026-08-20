@@ -16,7 +16,7 @@
 .hospital-card__image {
   position: relative;
   height: 110px;
-  background: linear-gradient(135deg, var(--color-navy-800), var(--color-teal-600));
+  background: var(--color-navy-800);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +78,8 @@
 
 .hospital-card__stats {
   display: flex;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-2);
   margin-top: 2px;
 }
 

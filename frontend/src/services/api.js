@@ -2,11 +2,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
     },
+    ...options,
   });
 
   if (!response.ok) {
@@ -35,10 +35,8 @@ export function getHospitals(params = {}) {
 }
 
 export function updateBedAvailability(hospitalId, category, delta) {
-  const hospitalToken = localStorage.getItem("medichain_hospital_token");
   return request(`/beds/${encodeURIComponent(hospitalId)}/${encodeURIComponent(category)}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${hospitalToken}` },
     body: JSON.stringify({ delta }),
   });
 }
@@ -51,87 +49,14 @@ export function createTransfer(payload) {
 }
 
 export function respondToTransfer(transferId, status) {
-  const hospitalToken = localStorage.getItem("medichain_hospital_token");
   return request(`/transfers/${encodeURIComponent(transferId)}/respond`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${hospitalToken}` },
     body: JSON.stringify({ status }),
   });
-}
-
-export function getPatients() {
-  return request("/patients");
 }
 
 export function getPatient(patientId) {
   return request(`/patients/${encodeURIComponent(patientId)}`);
 }
 
-export function getTransfers(hospital) {
-  return request(`/transfers${hospital ? `?hospital=${encodeURIComponent(hospital)}` : ""}`);
-}
-
-export function getHospitalAppointmentRequests() {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request("/appointments/hospital/requests", { headers: { Authorization: `Bearer ${token}` } });
-}
-
-export function decideHospitalAppointment(appointmentId, status) {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request(`/appointments/hospital/${encodeURIComponent(appointmentId)}/decision`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ status }) });
-}
-
-export function staffLogin(email, password) {
-  return request("/hospital-auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
-}
-
-export function createStaffAccount(payload) {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request("/hospital-auth/signup", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify(payload),
-  });
-}
-
-export function getStaffList() {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request("/hospital-auth/staff", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-}
-
-export function updateStaffPermissions(staffId, permissions) {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request(`/hospital-auth/${encodeURIComponent(staffId)}/permissions`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ permissions }),
-  });
-}
-
-export function getHospitalPayments() {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request("/payments/hospital", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-}
-
-function hospitalRequest(path, options = {}) {
-  const token = localStorage.getItem("medichain_hospital_token");
-  return request(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...options.headers } });
-}
-
-export const getInventory = (hospitalId, search = "") => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory${search ? `?search=${encodeURIComponent(search)}` : ""}`);
-export const addMedicine = (hospitalId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory`, { method: "POST", body: JSON.stringify(payload) });
-export const updateMedicine = (hospitalId, medicineId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}`, { method: "PUT", body: JSON.stringify(payload) });
-export const deleteMedicine = (hospitalId, medicineId) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}`, { method: "DELETE" });
-export const dispenseMedicine = (hospitalId, medicineId, payload) => hospitalRequest(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/${encodeURIComponent(medicineId)}/dispense`, { method: "POST", body: JSON.stringify(payload) });
-export const generateBill = (payload) => hospitalRequest("/billing/generate", { method: "POST", body: JSON.stringify(payload) });
-export const updateBillStatus = (billId, status) => hospitalRequest(`/billing/${encodeURIComponent(billId)}/status`, { method: "PUT", body: JSON.stringify({ status }) });
-export const addVisitRecord = (patientId, payload) => hospitalRequest(`/patients/${encodeURIComponent(patientId)}/history`, { method: "POST", body: JSON.stringify(payload) });
-
-export { API_BASE_URL, request };
+export { API_BASE_URL };

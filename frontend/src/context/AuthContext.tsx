@@ -7,8 +7,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { AuthContextType, AuthState, LoginCredentials, Patient, RegisterCredentials } from '../types/auth';
-import { fetchCurrentUser, loginRequest, registerRequest, logoutRequest } from '../services/auth';
+import type { AuthContextType, AuthState, LoginCredentials, Patient } from '../types/auth';
+import { fetchCurrentUser, loginRequest, logoutRequest } from '../services/auth';
 
 const TOKEN_STORAGE_KEY = 'medichain_token';
 
@@ -55,18 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(async (credentials: RegisterCredentials) => {
-    setError(null); setState((prev) => ({ ...prev, isLoading: true }));
-    try {
-      const { user, token } = await registerRequest(credentials);
-      localStorage.setItem(TOKEN_STORAGE_KEY, token);
-      setState({ user, token, isAuthenticated: true, isLoading: false });
-    } catch (err) {
-      setState((prev) => ({ ...prev, isLoading: false }));
-      setError(err instanceof Error ? err.message : 'Could not create account.'); throw err;
-    }
-  }, []);
-
   const logout = useCallback(() => {
     logoutRequest().finally(() => {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -74,15 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const updateUser = useCallback((user: Patient) => {
-    setState((prev) => ({ ...prev, user }));
-  }, []);
-
   const clearError = useCallback(() => setError(null), []);
 
   const value = useMemo<AuthContextType>(
-    () => ({ ...state, error, login, register, updateUser, logout, clearError }),
-    [state, error, login, register, updateUser, logout, clearError]
+    () => ({ ...state, error, login, logout, clearError }),
+    [state, error, login, logout, clearError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
