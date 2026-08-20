@@ -15,8 +15,12 @@ from bson import ObjectId
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
-RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+def gateway_credentials() -> tuple[str, str]:
+    key_id = os.getenv("RAZORPAY_KEY_ID", "")
+    key_secret = os.getenv("RAZORPAY_KEY_SECRET", "")
+    if not key_id or not key_secret:
+        raise HTTPException(503, "Payment gateway is not configured.")
+    return key_id, key_secret
 
 class CreateOrderRequest(BaseModel):
     appointment_id: str
@@ -34,10 +38,17 @@ def create_order(payload: CreateOrderRequest, authorization: str | None = Header
     # Use same header-based auth pattern as appointments.py to avoid 422 validation errors
     patient = current_patient(authorization)
 
-    if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-        raise HTTPException(500, "Payment gateway is not configured. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to backend/.env")
+    key_id, key_secret = gateway_credentials()
+    try:
+        appointment = get_database().appointments.find_one({"_id": ObjectId(payload.appointment_id), "patient_id": patient["_id"], "hospitalId": payload.hospital_id})
+    except Exception as exc:
+        raise HTTPException(400, "Invalid appointment ID.") from exc
+    if not appointment:
+        raise HTTPException(404, "Appointment not found for this hospital.")
+    if payload.amount <= 0 or payload.amount > 10_000_000:
+        raise HTTPException(422, "Invalid payment amount.")
 
-    auth_string = f"{RAZORPAY_KEY_ID}:{RAZORPAY_KEY_SECRET}"
+    auth_string = f"{key_id}:{key_secret}"
     base64_auth = base64.b64encode(auth_string.encode()).decode()
 
     req_body = json.dumps({
@@ -83,19 +94,22 @@ def create_order(payload: CreateOrderRequest, authorization: str | None = Header
         "orderId": order_id,
         "amount": payload.amount,
         "currency": "INR",
-        "keyId": RAZORPAY_KEY_ID
+        "keyId": key_id
     }
 
 
 @router.post("/verify")
-def verify_payment(payload: VerifyPaymentRequest):
-    if not RAZORPAY_KEY_SECRET:
-        raise HTTPException(500, "Payment gateway is not configured.")
+def verify_payment(payload: VerifyPaymentRequest, authorization: str | None = Header(default=None)):
+    patient = current_patient(authorization)
+    _, key_secret = gateway_credentials()
+    payment = get_payment_by_order_id(payload.razorpay_order_id)
+    if not payment or payment["patient_id"] != str(patient["_id"]):
+        raise HTTPException(404, "Payment order not found.")
 
     # Verify Razorpay HMAC-SHA256 signature
     msg = f"{payload.razorpay_order_id}|{payload.razorpay_payment_id}"
     expected_signature = hmac.new(
-        RAZORPAY_KEY_SECRET.encode(),
+        key_secret.encode(),
         msg.encode(),
         hashlib.sha256
     ).hexdigest()
@@ -107,7 +121,6 @@ def verify_payment(payload: VerifyPaymentRequest):
     update_payment_status(payload.razorpay_order_id, "paid", payload.razorpay_payment_id)
 
     # Mark appointment as confirmed + paid
-    payment = get_payment_by_order_id(payload.razorpay_order_id)
     if payment:
         db = get_database()
         try:
