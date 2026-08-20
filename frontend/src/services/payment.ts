@@ -1,6 +1,6 @@
 import { request } from './api';
 
-export function createPaymentOrder(payload: { appointment_id: string, amount: number, hospital_id: string }) {
+export function createPaymentOrder(payload: { appointment_id: string }) {
   const token = localStorage.getItem("medichain_patient_token") || localStorage.getItem("medichain_token");
   return request("/payments/create-order", {
     method: "POST",

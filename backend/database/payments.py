@@ -9,9 +9,33 @@ def create_payment_order(payment_data: dict) -> dict:
     payment_data["_id"] = str(result.inserted_id)
     return payment_data
 
+
+def ensure_payment_indexes() -> None:
+    """Create only the indexes needed for payment ownership and idempotency."""
+    payments = get_database().payments
+    payments.create_index("razorpay_order_id", unique=True, name="payment_order_id_unique")
+    payments.create_index(
+        "razorpay_payment_id",
+        unique=True,
+        sparse=True,
+        name="payment_id_unique",
+    )
+    payments.create_index("appointment_id", name="payment_appointment_id")
+    payments.create_index(
+        [("patient_id", 1), ("created_at", -1)],
+        name="payment_patient_created_at",
+    )
+
 def get_payment_by_order_id(order_id: str) -> dict:
     db = get_database()
     return db.payments.find_one({"razorpay_order_id": order_id})
+
+
+def get_open_payment_for_appointment(appointment_id: str, patient_id: str) -> dict:
+    return get_database().payments.find_one(
+        {"appointment_id": appointment_id, "patient_id": patient_id, "status": "created"},
+        sort=[("created_at", -1)],
+    )
 
 def update_payment_status(order_id: str, status: str, payment_id: str = None) -> None:
     db = get_database()
