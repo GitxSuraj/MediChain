@@ -46,6 +46,16 @@ const ICONS = {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
     </svg>
   ),
+  pill: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M10.5 20.5l-6-6a4.95 4.95 0 1 1 7-7l6 6a4.95 4.95 0 1 1-7 7z" /><path d="M8.5 8.5l7 7" />
+    </svg>
+  ),
+  receipt: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" /><path d="M16 14h-8M16 10h-8M10 6h-2" />
+    </svg>
+  ),
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -55,6 +65,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Appointment Status', path: '/appointment-status', icon: ICONS.status },
   { label: 'Medical History', path: '/medical-history', icon: ICONS.history },
   { label: 'Hospital Directory', path: '/hospitals', icon: ICONS.hospital },
+  { label: 'Medicine Store', path: '/medicine-store', icon: ICONS.pill },
+  { label: 'My Orders', path: '/my-orders', icon: ICONS.receipt },
   { label: 'Request Transfer', path: '/transfer', icon: ICONS.hospital },
 ];
 

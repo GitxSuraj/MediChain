@@ -13,9 +13,6 @@ import { createRealtimeSocket } from "../websocket/socket.js";
 
 const defaultCategory = "icu";
 
-// Doctor directory — keyed by the real hospital names seeded in MongoDB
-// (backend/scripts/seed_hospitals.py). Purely for admin display, no backend
-// changes needed. Edit/add names here freely.
 const DOCTORS_BY_HOSPITAL = {
   "CityCare General Hospital": [
     { name: "Dr. Ramesh Iyer", specialty: "Emergency Medicine" },
@@ -48,6 +45,7 @@ export default function AdminDashboard({ hospitalId }) {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory);
+  const [activeTab, setActiveTab] = useState("beds");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
@@ -63,6 +61,13 @@ export default function AdminDashboard({ hospitalId }) {
     ? DOCTORS_BY_HOSPITAL[selectedHospital.name] || []
     : [];
   const isClinic = selectedHospital?.type === "clinic";
+
+  // If clinic is selected and activeTab was beds, switch to appointments
+  useEffect(() => {
+    if (isClinic && activeTab === "beds") {
+      setActiveTab("appointments");
+    }
+  }, [isClinic, activeTab]);
 
   const networkStats = useMemo(() => {
     return hospitals.reduce(
@@ -168,146 +173,241 @@ export default function AdminDashboard({ hospitalId }) {
   }
 
   return (
-    <section className="page">
-      <div className="hospital-hero">
-        <div>
-          <p className="eyebrow">MediChain · Hospital Portal</p>
-          <h2>{selectedHospital?.name || "Hospital Operations"}</h2>
-          <p>Live bed operations, patient transfers, and appointment requests in one workspace.</p>
-        </div>
-        <div className="hospital-hero__actions">
-          {(() => {
-            const stored = localStorage.getItem('medichain_staff');
-            if (stored) {
-              const staff = JSON.parse(stored);
-              if (staff.role === 'super_admin') {
-                return <a href="/super-admin" className="secondary-button" style={{ marginRight: '1rem', textDecoration: 'none' }}>Super Admin Settings</a>;
+    <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+      <section className="page" style={{ margin: "0 auto", maxWidth: "1150px", width: "100%" }}>
+        {/* Hospital Hero Banner */}
+        <div className="hospital-hero">
+          <div>
+            <p className="eyebrow">MediChain · Facility Operations Portal</p>
+            <h2>{selectedHospital?.name || "Hospital Operations Workspace"}</h2>
+            <p>{selectedHospital?.city ? `${selectedHospital.city} · ` : ""}Live beds, patient appointments, pharmacy stock, and billing.</p>
+          </div>
+          <div className="hospital-hero__actions">
+            {(() => {
+              const stored = localStorage.getItem('medichain_staff');
+              if (stored) {
+                const staff = JSON.parse(stored);
+                if (staff.role === 'super_admin') {
+                  return <a href="/super-admin" className="secondary-button" style={{ marginRight: '0.75rem', textDecoration: 'none' }}>Super Admin Settings</a>;
+                }
               }
-            }
-            return null;
-          })()}
-          <span className="live-indicator"><i /> Live connected</span>
-          <button className="logout-button" type="button" onClick={logoutHospital}>Log out</button>
-        </div>
-      </div>
-
-      {!loading && hospitals.length > 0 && !isClinic ? (
-        <div className="stat-row">
-          <div className="stat-card">
-            <p className="stat-label">Patients admitted</p>
-            <p className="stat-value">{patientCount}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">ICU Beds Available</p>
-            <p className="stat-value">{networkStats.totalIcu}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">General beds available</p>
-            <p className="stat-value">{networkStats.totalGeneral}</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Oxygen beds available</p>
-            <p className="stat-value">{networkStats.totalOxygen}</p>
+              return null;
+            })()}
+            <span className="live-indicator"><i /> Live connected</span>
+            <button className="logout-button" type="button" onClick={logoutHospital}>Log out</button>
           </div>
         </div>
-      ) : null}
 
-      <div className="toolbar">
-        {!hospitalId && <label className="field hospital-selector">
-          <span>Hospital</span>
-          <select
-            value={selectedHospitalId}
-            disabled={loading || hospitals.length === 0}
-            onChange={(event) => {
-              setSelectedHospitalId(event.target.value);
-              setSuccessMessage("");
-              setError("");
-            }}
-          >
-            {hospitals.map((hospital) => (
-              <option key={hospital.id} value={hospital.id}>
-                {hospital.name} - {hospital.city}
-              </option>
-            ))}
-          </select>
-        </label>}
-
-        <button className="secondary-button" type="button" disabled={loading} onClick={loadHospitals}>
-          {loading ? "Loading..." : "Reload"}
-        </button>
-      </div>
-
-      {error ? <div className="alert error">{error}</div> : null}
-      {successMessage ? <div className="alert success">{successMessage}</div> : null}
-
-      {loading ? <div className="empty-state">Loading hospitals...</div> : null}
-
-      {!loading && !selectedHospital && !error ? (
-        <div className="empty-state">No hospitals found. Run the backend seed script first.</div>
-      ) : null}
-
-      {selectedHospital ? (
-        <div className="admin-grid">
-          <section className="hospital-panel" aria-labelledby="selected-hospital-heading">
-            <div>
-              <p className="eyebrow">Selected Hospital</p>
-              <h3 id="selected-hospital-heading">{selectedHospital.name}</h3>
-              <p>{selectedHospital.city}</p>
+        {/* Top Quick Stats for Hospitals */}
+        {!loading && hospitals.length > 0 && !isClinic ? (
+          <div className="stat-row" style={{ marginBottom: "1.5rem" }}>
+            <div className="stat-card">
+              <p className="stat-label">Patients Admitted</p>
+              <p className="stat-value">{patientCount}</p>
             </div>
-
-            <div className="tag-row">
-              {selectedHospital.facilities.map((facility) => (
-                <span className="tag" key={facility}>
-                  {facility}
-                </span>
-              ))}
+            <div className="stat-card">
+              <p className="stat-label">ICU Beds Available</p>
+              <p className="stat-value">{networkStats.totalIcu}</p>
             </div>
+            <div className="stat-card">
+              <p className="stat-label">General Beds Available</p>
+              <p className="stat-value">{networkStats.totalGeneral}</p>
+            </div>
+            <div className="stat-card">
+              <p className="stat-label">Oxygen Beds Available</p>
+              <p className="stat-value">{networkStats.totalOxygen}</p>
+            </div>
+          </div>
+        ) : null}
 
-            {!isClinic && <BedCategorySummary beds={selectedHospital.beds} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />}
+        {/* Facility Selector Toolbar */}
+        <div className="toolbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+          {!hospitalId && (
+            <label className="field hospital-selector" style={{ minWidth: "300px" }}>
+              <span style={{ fontWeight: 700, color: "#374151" }}>Operating Facility:</span>
+              <select
+                value={selectedHospitalId}
+                disabled={loading || hospitals.length === 0}
+                onChange={(event) => {
+                  setSelectedHospitalId(event.target.value);
+                  setSuccessMessage("");
+                  setError("");
+                }}
+                style={{ padding: "0.65rem", borderRadius: "8px" }}
+              >
+                {hospitals.map((hospital) => (
+                  <option key={hospital.id} value={hospital.id}>
+                    {hospital.name} ({hospital.city}) {hospital.type === "clinic" ? "• Clinic" : "• Hospital"}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
-            <div>
-              <p className="eyebrow" style={{ marginTop: "4px" }}>On-Duty Doctors</p>
-              {selectedHospitalDoctors.length === 0 ? (
-                <p style={{ color: "#5b6575" }}>No doctor roster added for this hospital yet.</p>
-              ) : (
+          <button className="secondary-button" type="button" disabled={loading} onClick={loadHospitals}>
+            {loading ? "Loading..." : "🔄 Refresh Workspace"}
+          </button>
+        </div>
+
+        {error ? <div className="alert error">{error}</div> : null}
+        {successMessage ? <div className="alert success">{successMessage}</div> : null}
+        {loading ? <div className="empty-state">Loading facilities...</div> : null}
+
+        {/* Clean Admin Navigation Tabs */}
+        {selectedHospital && (
+          <div style={{ display: "flex", gap: "8px", borderBottom: "2px solid #e2e8f0", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+            {!isClinic && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("beds")}
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: "8px 8px 0 0",
+                  border: "none",
+                  background: activeTab === "beds" ? "#0f766e" : "transparent",
+                  color: activeTab === "beds" ? "#ffffff" : "#475569",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                }}
+              >
+                🛏️ Beds & Transfers
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("appointments")}
+              style={{
+                padding: "10px 18px",
+                borderRadius: "8px 8px 0 0",
+                border: "none",
+                background: activeTab === "appointments" ? "#0f766e" : "transparent",
+                color: activeTab === "appointments" ? "#ffffff" : "#475569",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                cursor: "pointer",
+              }}
+            >
+              📅 Appointments & Visits
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("pharmacy")}
+              style={{
+                padding: "10px 18px",
+                borderRadius: "8px 8px 0 0",
+                border: "none",
+                background: activeTab === "pharmacy" ? "#0f766e" : "transparent",
+                color: activeTab === "pharmacy" ? "#ffffff" : "#475569",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                cursor: "pointer",
+              }}
+            >
+              💊 Pharmacy Inventory
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("billing")}
+              style={{
+                padding: "10px 18px",
+                borderRadius: "8px 8px 0 0",
+                border: "none",
+                background: activeTab === "billing" ? "#0f766e" : "transparent",
+                color: activeTab === "billing" ? "#ffffff" : "#475569",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                cursor: "pointer",
+              }}
+            >
+              🧾 Billing & Invoices
+            </button>
+          </div>
+        )}
+
+        {/* Tab 1: Beds & Transfers (Hospitals only) */}
+        {selectedHospital && activeTab === "beds" && !isClinic && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div className="admin-grid">
+              <section className="hospital-panel" aria-labelledby="selected-hospital-heading">
+                <div>
+                  <p className="eyebrow">Facility Info</p>
+                  <h3 id="selected-hospital-heading">{selectedHospital.name}</h3>
+                  <p>{selectedHospital.city}</p>
+                </div>
+
                 <div className="tag-row">
-                  {selectedHospitalDoctors.map((doc) => (
-                    <span className="tag" key={doc.name}>
-                      {doc.name} · {doc.specialty}
+                  {selectedHospital.facilities.map((facility) => (
+                    <span className="tag" key={facility}>
+                      {facility}
                     </span>
                   ))}
                 </div>
-              )}
+
+                <BedCategorySummary beds={selectedHospital.beds} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+
+                <div>
+                  <p className="eyebrow" style={{ marginTop: "10px" }}>On-Duty Medical Roster</p>
+                  {selectedHospitalDoctors.length === 0 ? (
+                    <p style={{ color: "#5b6575" }}>No doctor roster added for this hospital yet.</p>
+                  ) : (
+                    <div className="tag-row">
+                      {selectedHospitalDoctors.map((doc) => (
+                        <span className="tag" key={doc.name}>
+                          {doc.name} · {doc.specialty}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <PermissionGate requires="manage_beds">
+                <BedController
+                  category={selectedCategory}
+                  beds={selectedHospital.beds}
+                  disabled={!selectedHospital}
+                  updating={updating}
+                  onChangeCategory={(category) => {
+                    setSelectedCategory(category);
+                    setSuccessMessage("");
+                    setError("");
+                  }}
+                  onUpdateBeds={handleUpdateBeds}
+                />
+              </PermissionGate>
             </div>
-          </section>
 
-          {!isClinic && <PermissionGate requires="manage_beds">
-            <BedController
-              category={selectedCategory}
-              beds={selectedHospital.beds}
-              disabled={!selectedHospital}
-              updating={updating}
-              onChangeCategory={(category) => {
-                setSelectedCategory(category);
-                setSuccessMessage("");
-                setError("");
-              }}
-              onUpdateBeds={handleUpdateBeds}
-            />
-          </PermissionGate>}
-        </div>
-      ) : null}
+            <PermissionGate requires="manage_transfers">
+              <TransferPanel hospitalName={selectedHospital?.name} />
+            </PermissionGate>
+          </div>
+        )}
 
-      {!isClinic && <PermissionGate requires="manage_transfers">
-        <TransferPanel hospitalName={selectedHospital?.name} />
-      </PermissionGate>}
-      <PermissionGate requires="view_patients">
-        <AppointmentRequests />
-      </PermissionGate>
-      <PermissionGate requires="manage_inventory">
-        {selectedHospital && <InventoryManagement hospitalId={selectedHospital.id} />}
-      </PermissionGate>
-      <PermissionGate requires="manage_billing"><Billing /></PermissionGate>
-    </section>
+        {/* Tab 2: Appointments */}
+        {selectedHospital && activeTab === "appointments" && (
+          <PermissionGate requires="view_patients">
+            <AppointmentRequests />
+          </PermissionGate>
+        )}
+
+        {/* Tab 3: Pharmacy */}
+        {selectedHospital && activeTab === "pharmacy" && (
+          <PermissionGate requires="manage_inventory">
+            <InventoryManagement hospitalId={selectedHospital.id} />
+          </PermissionGate>
+        )}
+
+        {/* Tab 4: Billing */}
+        {selectedHospital && activeTab === "billing" && (
+          <PermissionGate requires="manage_billing">
+            <Billing />
+          </PermissionGate>
+        )}
+      </section>
+    </div>
   );
 }

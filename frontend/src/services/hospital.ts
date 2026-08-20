@@ -6,7 +6,7 @@ export interface Hospital {
   beds?: Record<string, { total: number; available: number }>;
 }
 export interface HospitalFilters { query?: string; specialty?: string; emergencyOnly?: boolean; sortBy?: 'distance' | 'rating'; }
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 const DOCTORS = [
   { id: 'doctor-1', name: 'Dr. Asha Mehta', specialty: 'General Physician' },
   { id: 'doctor-2', name: 'Dr. Ravi Kumar', specialty: 'Emergency Medicine' },

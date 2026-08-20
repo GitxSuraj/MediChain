@@ -34,7 +34,7 @@ export default function Navbar({ title = 'Dashboard' }: NavbarProps) {
 
   // Subscribe to WebSocket appointment events for live notifications
   useEffect(() => {
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
     const wsUrl = API_BASE.replace(/^http/, 'ws') + '/realtime/ws';
     let ws: WebSocket | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout>;

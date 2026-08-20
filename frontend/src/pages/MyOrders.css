@@ -1,0 +1,18 @@
+/* MyOrders styles */
+.orders-page {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.orders-title {
+  margin-bottom: 1.5rem;
+  color: #111827;
+}
+
+.orders-empty {
+  padding: 3rem;
+  text-align: center;
+  background-color: var(--color-bg-secondary, #f9fafb);
+  border-radius: var(--radius-lg, 0.5rem);
+}

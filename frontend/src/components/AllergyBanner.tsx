@@ -4,9 +4,10 @@ interface AllergyBannerProps {
   allergies: string[];
   medicalConditions: string[];
   bloodGroup: string;
+  onEdit?: () => void;
 }
 
-export default function AllergyBanner({ allergies, medicalConditions, bloodGroup }: AllergyBannerProps) {
+export default function AllergyBanner({ allergies, medicalConditions, bloodGroup, onEdit }: AllergyBannerProps) {
   return (
     <div className="allergy-banner">
       <div className="allergy-banner__group">
@@ -39,9 +40,17 @@ export default function AllergyBanner({ allergies, medicalConditions, bloodGroup
       <div className="allergy-banner__divider" />
 
       <div className="allergy-banner__blood">
-        <span className="allergy-banner__blood-value mono">{bloodGroup}</span>
+        <span className="allergy-banner__blood-value mono">{bloodGroup || '—'}</span>
         <span className="allergy-banner__label">Blood Group</span>
       </div>
+
+      {onEdit && (
+        <div className="allergy-banner__edit-col">
+          <button className="btn-allergy-edit" onClick={onEdit} title="Update Allergies, Conditions & Blood Group">
+            ✏️ Edit
+          </button>
+        </div>
+      )}
     </div>
   );
 }

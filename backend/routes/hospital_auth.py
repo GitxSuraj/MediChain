@@ -24,14 +24,32 @@ class StaffLoginRequest(BaseModel):
 
 def get_current_staff(authorization: str | None = Header(default=None)):
     token = (authorization or "").removeprefix("Bearer ").strip()
+    if not token:
+        raise HTTPException(401, "Staff sign-in is required.")
     db = get_database()
-    session = db.sessions.find_one({"token": token, "role": "hospital_staff"}) if token else None
+    session = db.sessions.find_one({"token": token})
     if not session:
         raise HTTPException(401, "Staff sign-in is required.")
-    staff = db.hospital_staff.find_one({"_id": session["staff_id"]})
-    if not staff:
-        raise HTTPException(401, "Staff account was not found.")
-    return staff
+    
+    if session.get("role") == "hospital_staff":
+        staff = db.hospital_staff.find_one({"_id": session.get("staff_id")})
+        if not staff:
+            raise HTTPException(401, "Staff account was not found.")
+        return staff
+    elif session.get("role") == "hospital":
+        hospital = db.hospitals.find_one({"_id": ObjectId(session["hospital_id"])})
+        return {
+            "_id": session.get("hospital_id"),
+            "hospital_id": session.get("hospital_id"),
+            "name": hospital.get("name", "Hospital Admin") if hospital else "Hospital Admin",
+            "email": "admin@hospital.com",
+            "role": "super_admin",
+            "permissions": [
+                "manage_beds", "manage_transfers", "view_patients",
+                "assign_doctors", "manage_inventory", "manage_billing"
+            ]
+        }
+    raise HTTPException(401, "Staff sign-in is required.")
 
 @router.post("/signup")
 def signup(payload: StaffSignupRequest, admin: dict = Depends(get_current_staff)):

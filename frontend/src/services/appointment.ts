@@ -12,7 +12,7 @@ export interface BookAppointmentPayload {
 }
 export const AVAILABLE_TIME_SLOTS = ['9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM'];
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 async function request(path: string, options: RequestInit = {}) {
   const token = localStorage.getItem('medichain_token');
   const response = await fetch(`${API}${path}`, { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...(options.headers || {}) }, ...options });

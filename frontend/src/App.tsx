@@ -15,6 +15,8 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard.jsx';
 import HospitalLogin from './pages/HospitalLogin.jsx';
 import Cover from './pages/Cover';
 import PaymentPage from './pages/PaymentPage';
+import MedicineStore from './pages/MedicineStore';
+import MyOrders from './pages/MyOrders';
 import './App.css';
 
 function App() {
@@ -85,6 +87,8 @@ function App() {
           }
         />
         <Route path="/transfer" element={<ProtectedRoute><PatientLayout title="Hospital Transfer"><PatientTransfer /></PatientLayout></ProtectedRoute>} />
+        <Route path="/medicine-store" element={<ProtectedRoute><PatientLayout title="Medicine Store"><MedicineStore /></PatientLayout></ProtectedRoute>} />
+        <Route path="/my-orders" element={<ProtectedRoute><PatientLayout title="My Orders"><MyOrders /></PatientLayout></ProtectedRoute>} />
 
         <Route path="/" element={<Cover />} />
         <Route path="*" element={<Navigate to="/" replace />} />

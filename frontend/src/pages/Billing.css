@@ -1,1 +1,176 @@
-@media print { .no-print, nav, button { display: none !important; } .bill-print { box-shadow: none !important; margin: 0 !important; width: 100% !important; } body { background: #fff !important; } }
+.billing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.invoice-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 2.25rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.invoice-brand {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0f766e;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.invoice-hospital-name {
+  margin: 4px 0 2px 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.invoice-hospital-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.invoice-meta-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.invoice-badge {
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.invoice-id {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.invoice-date {
+  font-size: 0.825rem;
+  color: #64748b;
+}
+
+.invoice-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.invoice-status-select {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: #ffffff;
+}
+
+.invoice-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.invoice-items-table th {
+  background: #f1f5f9;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #cbd5e1;
+  color: #334155;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.invoice-items-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.invoice-totals-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.invoice-totals-table {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.totals-row--grand {
+  border-top: 2px solid #0f172a;
+  padding-top: 6px;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.invoice-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.25rem;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .bill-print, .bill-print * {
+    visibility: visible;
+  }
+  .bill-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

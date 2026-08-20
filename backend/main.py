@@ -11,6 +11,9 @@ from routes.payments import router as payments_router
 from routes.inventory import router as inventory_router
 from routes.billing import router as billing_router, patient_bills_router
 from routes.medical_records import router as medical_records_router
+from routes.vitals import router as vitals_router
+from routes.orders import router as orders_router
+from routes.clinic_management import router as clinic_management_router
 
 
 app = FastAPI(
@@ -45,6 +48,9 @@ app.include_router(inventory_router)
 app.include_router(billing_router)
 app.include_router(patient_bills_router)
 app.include_router(medical_records_router)
+app.include_router(vitals_router)
+app.include_router(orders_router)
+app.include_router(clinic_management_router)
 
 
 @app.get("/")

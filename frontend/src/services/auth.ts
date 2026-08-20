@@ -9,7 +9,7 @@ import type { LoginCredentials, Patient, RegisterCredentials } from '../types/au
  * outside this file needs to change.
  */
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 async function api(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API}${path}`, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
   const body = await res.json().catch(() => ({}));

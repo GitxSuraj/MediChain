@@ -130,9 +130,19 @@ nav { display: grid; gap: 4px; }
   background-image: radial-gradient(circle, rgba(167,243,208,0.45) 1px, transparent 1px);
   background-size: 28px 28px;
   background-color: #f7fffe;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.page { max-width: 1200px; }
+.page { 
+  max-width: 1150px; 
+  width: 100%; 
+  margin: 0 auto;
+  box-sizing: border-box;
+}
 .page-header { margin-bottom: 28px; }
 
 /* ─── Hospital Hero Banner ─── */

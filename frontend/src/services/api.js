@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8001";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -133,5 +133,10 @@ export const dispenseMedicine = (hospitalId, medicineId, payload) => hospitalReq
 export const generateBill = (payload) => hospitalRequest("/billing/generate", { method: "POST", body: JSON.stringify(payload) });
 export const updateBillStatus = (billId, status) => hospitalRequest(`/billing/${encodeURIComponent(billId)}/status`, { method: "PUT", body: JSON.stringify({ status }) });
 export const addVisitRecord = (patientId, payload) => hospitalRequest(`/patients/${encodeURIComponent(patientId)}/history`, { method: "POST", body: JSON.stringify(payload) });
+
+export const getPublicInventory = (hospitalId) => request(`/hospitals/${encodeURIComponent(hospitalId)}/inventory/public`);
+export const getFacilities = () => hospitalRequest('/manage/facilities');
+export const createFacility = (payload) => hospitalRequest('/manage/facilities', { method: 'POST', body: JSON.stringify(payload) });
+export const updateFacility = (id, payload) => hospitalRequest(`/manage/facilities/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(payload) });
 
 export { API_BASE_URL, request };
