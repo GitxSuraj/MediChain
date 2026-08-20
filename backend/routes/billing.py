@@ -20,6 +20,8 @@ def generate_bill(payload: BillGenerateRequest, staff=Depends(get_current_staff)
     try: appointment = db.appointments.find_one({"_id": ObjectId(payload.appointment_id), "hospitalId": staff["hospital_id"]})
     except Exception as exc: raise HTTPException(400, "Invalid appointment ID.") from exc
     if not appointment: raise HTTPException(404, "Appointment not found for your hospital.")
+    if db.bills.find_one({"appointment_id": payload.appointment_id, "hospital_id": staff["hospital_id"]}):
+        raise HTTPException(409, "A bill already exists for this appointment.")
     events = list(db.medicine_dispensings.find({"hospital_id": staff["hospital_id"], "appointment_id": payload.appointment_id}))
     items = [{"description": f"Medicine: {db.medicines.find_one({'_id': ObjectId(e['medicine_id'])}).get('name', 'Medicine')}", "quantity": e["quantity"], "unit_price": float(money(e["unit_price"])), "total": float(money(e["quantity"]) * money(e["unit_price"]))} for e in events]
     items += [item.model_dump() | {"total": float(money(item.quantity) * money(item.unit_price))} for item in payload.manual_items]
@@ -32,8 +34,15 @@ def get_bill(bill_id: str, authorization: str | None = Header(default=None)):
     try: bill = get_database().bills.find_one({"_id": ObjectId(bill_id)})
     except Exception as exc: raise HTTPException(400, "Invalid bill ID.") from exc
     if not bill: raise HTTPException(404, "Bill not found.")
-    token = (authorization or "").removeprefix("Bearer ").strip(); session = get_database().sessions.find_one({"token": token})
-    if not session or (session.get("hospital_id") != bill["hospital_id"] and session.get("patient_id") != ObjectId(bill["patient_id"])): raise HTTPException(403, "You cannot access this bill.")
+    db = get_database(); token = (authorization or "").removeprefix("Bearer ").strip(); session = db.sessions.find_one({"token": token})
+    if not session: raise HTTPException(403, "You cannot access this bill.")
+    staff_hospital_id = None
+    if session.get("role") == "hospital_staff":
+        staff = db.hospital_staff.find_one({"_id": session.get("staff_id")})
+        staff_hospital_id = staff.get("hospital_id") if staff else None
+    patient_id = session.get("patient_id")
+    if staff_hospital_id != bill["hospital_id"] and session.get("hospital_id") != bill["hospital_id"] and str(patient_id) != bill["patient_id"]:
+        raise HTTPException(403, "You cannot access this bill.")
     return serialize(bill)
 
 @router.put("/{bill_id}/status")
