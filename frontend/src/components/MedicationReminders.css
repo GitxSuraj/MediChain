@@ -1,0 +1,87 @@
+.med-reminders {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.med-reminders__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.med-reminders__header h4 {
+  font-size: 0.95rem;
+}
+
+.med-reminders__count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-teal-600);
+  background: var(--color-teal-100);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.med-reminders__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.med-reminders__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.med-reminders__item:hover {
+  background: var(--color-surface-alt);
+}
+
+.med-reminders__checkbox {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  transition: all var(--transition-fast);
+}
+
+.med-reminders__item--done .med-reminders__checkbox {
+  background: var(--color-teal-500);
+  border-color: var(--color-teal-500);
+}
+
+.med-reminders__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+}
+
+.med-reminders__name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.med-reminders__item--done .med-reminders__name {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.med-reminders__time {
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+}
