@@ -81,10 +81,10 @@ export function decideHospitalAppointment(appointmentId, status) {
   return request(`/appointments/hospital/${encodeURIComponent(appointmentId)}/decision`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ status }) });
 }
 
-export function staffLogin(email, password) {
+export function staffLogin(email, password, hospital_id = null) {
   return request("/hospital-auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, hospital_id }),
   });
 }
 
