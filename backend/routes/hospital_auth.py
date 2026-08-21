@@ -21,7 +21,6 @@ class StaffSignupRequest(BaseModel):
 class StaffLoginRequest(BaseModel):
     email: EmailStr
     password: str
-    hospital_id: Optional[str] = None
 
 def get_current_staff(authorization: str | None = Header(default=None)):
     token = (authorization or "").removeprefix("Bearer ").strip()
@@ -72,38 +71,26 @@ def signup(payload: StaffSignupRequest, admin: dict = Depends(get_current_staff)
 @router.post("/login")
 def login(payload: StaffLoginRequest):
     email_clean = payload.email.lower().strip()
+    staff = get_hospital_user_by_email(email_clean)
     db = get_database()
-    
-    # Check if staff account exists
-    staff = None
-    if payload.hospital_id:
-        staff = db.hospital_staff.find_one({"email": email_clean, "hospital_id": payload.hospital_id})
-    if not staff:
-        staff = get_hospital_user_by_email(email_clean)
 
-    # Auto-provision or link super admin if default password used
+    # Auto-provision or link default super admin if default password used
     if not staff and payload.password == "Hospital@123":
+        domain = email_clean.split("@")[-1].split(".")[0]
+        hospitals = list(db.hospitals.find())
         target_hospital = None
-        if payload.hospital_id:
-            try:
-                target_hospital = db.hospitals.find_one({"_id": ObjectId(payload.hospital_id)})
-            except:
-                pass
-        if not target_hospital:
-            domain = email_clean.split("@")[-1].split(".")[0]
-            for h in db.hospitals.find():
-                name_clean = h.get("name", "").lower().replace(" ", "").replace("'", "").replace("-", "")
-                if domain in name_clean or name_clean in domain or domain in ["hospital", "admin"]:
-                    target_hospital = h
-                    break
-        if not target_hospital:
-            target_hospital = db.hospitals.find_one()
+        for h in hospitals:
+            name_clean = h.get("name", "").lower().replace(" ", "").replace("'", "").replace("-", "")
+            if domain in name_clean or name_clean in domain or domain in ["hospital", "admin"]:
+                target_hospital = h
+                break
+        if not target_hospital and hospitals:
+            target_hospital = hospitals[0]
 
         if target_hospital:
-            target_h_id = str(target_hospital["_id"])
             admin_salt = secrets.token_hex(16)
             admin_doc = {
-                "hospital_id": target_h_id,
+                "hospital_id": str(target_hospital["_id"]),
                 "name": f"{target_hospital.get('name', 'Hospital')} Admin",
                 "email": email_clean,
                 "role": "super_admin",
