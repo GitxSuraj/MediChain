@@ -1,0 +1,215 @@
+/* ─── Payment Card ─────────────────────────────── */
+
+.pay-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 24px rgba(15, 118, 110, 0.08);
+}
+
+.pay-card__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.pay-card__hospital {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pay-card__hospital-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.pay-card__hospital-name {
+  margin: 0 0 2px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1a2130;
+}
+
+.pay-card__label {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.pay-card__amount {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f766e;
+  white-space: nowrap;
+}
+
+.pay-card__divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 18px 0;
+}
+
+/* ─── The Pay Button ─────────────────────────────── */
+
+.pay-card__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 4px 14px rgba(15, 118, 110, 0.35),
+    0 1px 3px rgba(15, 118, 110, 0.2);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pay-card__btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.pay-card__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 22px rgba(15, 118, 110, 0.4),
+    0 2px 6px rgba(15, 118, 110, 0.25);
+  background: linear-gradient(135deg, #0a5b54 0%, #0f766e 100%);
+}
+
+.pay-card__btn:active:not(:disabled) {
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.3);
+}
+
+.pay-card__btn:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Spinner inside button ─────────────────────── */
+
+.pay-card__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: pay-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pay-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Trust line ────────────────────────────────── */
+
+.pay-card__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ─── "Complete Booking" container ─────────────── */
+
+.booking-pay-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.booking-pay-screen h2 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  color: #1a2130;
+}
+
+.booking-pay-screen p {
+  margin: 0 0 4px;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.booking-pay-screen__steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0 4px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.booking-pay-screen__step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.booking-pay-screen__step--done {
+  color: #0f766e;
+}
+
+.booking-pay-screen__step-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.booking-pay-screen__step--done .booking-pay-screen__step-dot {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.booking-pay-screen__step--active .booking-pay-screen__step-dot {
+  background: #0f766e;
+  color: #fff;
+}
+
+.booking-pay-screen__arrow {
+  color: #cbd5e1;
+  font-size: 0.7rem;
+}

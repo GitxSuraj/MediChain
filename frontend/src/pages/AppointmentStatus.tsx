@@ -7,11 +7,18 @@ import {
   type AppointmentStatus as StatusType,
 } from '../services/appointment';
 import TimelineItem from '../components/TimelineItem';
-import FilterTabs from '../components/FilterTabs';
 import Toast from '../components/Toast';
 import './AppointmentStatus.css';
 
 type FilterValue = 'All' | StatusType;
+
+const TAB_OPTIONS: { label: string; value: FilterValue }[] = [
+  { label: 'All',       value: 'All'       },
+  { label: 'Pending',   value: 'Pending'   },
+  { label: 'Confirmed', value: 'Confirmed' },
+  { label: 'Completed', value: 'Completed' },
+  { label: 'Cancelled', value: 'Cancelled' },
+];
 
 export default function AppointmentStatus() {
   const { user } = useAuth();
@@ -54,34 +61,34 @@ export default function AppointmentStatus() {
   }
 
   return (
-    <div className="appointment-status">
-      <div className="appointment-status__header">
-        <FilterTabs
-          options={[
-            { label: 'All', value: 'All', count: counts.All },
-            { label: 'Pending', value: 'Pending', count: counts.Pending },
-            { label: 'Confirmed', value: 'Confirmed', count: counts.Confirmed },
-            { label: 'Completed', value: 'Completed', count: counts.Completed },
-            { label: 'Cancelled', value: 'Cancelled', count: counts.Cancelled },
-          ]}
-          active={filter}
-          onChange={setFilter}
-        />
+    <div className="appt-status">
+      {/* Filter tabs — bottom-border indicator style */}
+      <div className="appt-status__tabs">
+        {TAB_OPTIONS.map((tab) => (
+          <button
+            key={tab.value}
+            className={`appt-status__tab${filter === tab.value ? ' appt-status__tab--active' : ''}`}
+            onClick={() => setFilter(tab.value)}
+          >
+            {tab.label}
+            <span className="appt-status__tab-count">{counts[tab.value]}</span>
+          </button>
+        ))}
       </div>
 
       {loading ? (
-        <div className="appointment-status__skeletons">
+        <div className="appt-status__skeletons">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-lg)' }} />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="appointment-status__empty card-surface">
+        <div className="appt-status__empty card-surface">
           <p>No {filter !== 'All' ? filter.toLowerCase() : ''} appointments to show.</p>
           <a href="/book-appointment" className="btn btn-primary">Book an Appointment</a>
         </div>
       ) : (
-        <div className="appointment-status__timeline">
+        <div className="appt-status__list">
           {filtered.map((appt, index) => (
             <TimelineItem
               key={appt.id}

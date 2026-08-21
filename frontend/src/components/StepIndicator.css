@@ -1,7 +1,8 @@
 .step-indicator {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-2);
+  width: 100%;
 }
 
 .step-indicator__item {
@@ -12,56 +13,59 @@
 }
 
 .step-indicator__circle {
-  width: 30px;
-  height: 30px;
-  min-width: 30px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  font-weight: 700;
-  background: var(--color-surface-alt);
-  color: var(--color-text-tertiary);
-  border: 2px solid var(--color-border-strong);
-  transition: all var(--transition-base);
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1.5px solid var(--color-border);
+  transition: all var(--transition-fast);
 }
 
 .step-indicator__item--active .step-indicator__circle {
-  background: linear-gradient(135deg, var(--color-teal-500), var(--color-violet-500));
-  color: var(--color-white);
-  border-color: transparent;
-  box-shadow: var(--shadow-glow-teal);
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-color: var(--color-primary);
 }
 
 .step-indicator__item--done .step-indicator__circle {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-  border-color: var(--color-success);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary-border);
 }
 
 .step-indicator__label {
   font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text-tertiary);
+  font-weight: 500;
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
-.step-indicator__item--active .step-indicator__label,
-.step-indicator__item--done .step-indicator__label {
+.step-indicator__item--active .step-indicator__label {
   color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.step-indicator__item--done .step-indicator__label {
+  color: var(--color-text-secondary);
 }
 
 .step-indicator__line {
   flex: 1;
-  height: 2px;
-  background: var(--color-border-strong);
-  margin: 0 4px;
-  min-width: 20px;
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 8px;
+  min-width: 16px;
 }
 
 .step-indicator__item--done .step-indicator__line {
-  background: var(--color-success);
+  background: var(--color-primary-border);
 }
 
 @media (max-width: 640px) {

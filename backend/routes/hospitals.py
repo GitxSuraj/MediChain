@@ -12,7 +12,7 @@ from database.hospitals import (
     list_hospitals,
     update_bed_availability,
 )
-from database.mongodb import MONGODB_UNAVAILABLE_MESSAGE
+from database.mongodb import MONGODB_UNAVAILABLE_MESSAGE, get_database
 from models.hospital import BedUpdateEvent, BedUpdateRequest, BedUpdateResponse, HospitalResponse
 from realtime.connection_manager import manager
 from routes.auth import current_hospital_user
@@ -29,15 +29,32 @@ def get_hospitals(
     try:
         return list_hospitals(facility=facility, city=city)
     except ServerSelectionTimeoutError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=MONGODB_UNAVAILABLE_MESSAGE,
-        ) from exc
+        raise HTTPException(status_code=503, detail=MONGODB_UNAVAILABLE_MESSAGE) from exc
     except PyMongoError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=MONGODB_UNAVAILABLE_MESSAGE,
-        ) from exc
+        raise HTTPException(status_code=503, detail=MONGODB_UNAVAILABLE_MESSAGE) from exc
+
+
+@router.get("/hospitals/ratings")
+def get_hospital_ratings(hospital_ids: str | None = None):
+    """Return average ratings and review counts for a list of hospital IDs.
+
+    Query param: hospital_ids — comma-separated list of hospital IDs.
+    Returns: { hospital_id: { average_rating, review_count }, ... }
+    """
+    db = get_database()
+    result: dict = {}
+    if not hospital_ids:
+        return result
+
+    ids = [hid.strip() for hid in hospital_ids.split(",") if hid.strip()]
+    for hid in ids:
+        docs = list(db.reviews.find({"hospital_id": hid}))
+        if docs:
+            avg = round(sum(d.get("rating", 0) for d in docs) / len(docs), 1)
+            result[hid] = {"average_rating": avg, "review_count": len(docs)}
+        else:
+            result[hid] = {"average_rating": 0, "review_count": 0}
+    return result
 
 
 @router.post("/beds/{hospital_id}/{category}", response_model=BedUpdateResponse)
@@ -67,15 +84,9 @@ async def update_hospital_beds(
     except HospitalNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ServerSelectionTimeoutError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=MONGODB_UNAVAILABLE_MESSAGE,
-        ) from exc
+        raise HTTPException(status_code=503, detail=MONGODB_UNAVAILABLE_MESSAGE) from exc
     except PyMongoError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=MONGODB_UNAVAILABLE_MESSAGE,
-        ) from exc
+        raise HTTPException(status_code=503, detail=MONGODB_UNAVAILABLE_MESSAGE) from exc
 
     if normalized_category in BED_CATEGORIES:
         event = BedUpdateEvent(

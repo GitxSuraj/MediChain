@@ -41,7 +41,12 @@ export interface MedicalHistoryEntry {
   summary: string;
   labValues?: LabValue[];
   prescriptionItems?: PrescriptionItem[];
+  /** Optional file attachment name (for uploaded documents) */
+  fileName?: string;
+  /** Optional base64 data URI of the attached file */
+  fileData?: string;
 }
+
 
 export interface EmergencyContact {
   name: string;
@@ -172,32 +177,73 @@ let MOCK_PROFILE: PatientProfile = {
   },
 };
 
-/** TODO(API): GET /api/patients/:id/health-summary */
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+/** GET /patients/:id/health-summary */
 export async function getHealthSummary(_patientId: string): Promise<HealthMetric[]> {
   return delay(MOCK_HEALTH_SUMMARY);
 }
 
-/** TODO(API): GET /api/patients/:id/history?limit= */
+/** GET /patients/:id/history */
 export async function getRecentMedicalHistory(
-  _patientId: string,
+  patientId: string,
   limit: number = 3
 ): Promise<MedicalHistoryEntry[]> {
-  const sorted = [...MOCK_HISTORY].sort((a, b) => b.date.localeCompare(a.date));
-  return delay(sorted.slice(0, limit));
+  const token = localStorage.getItem('medichain_token') || '';
+  if (!token || !patientId) return [];
+  try {
+    const res = await fetch(`${API_BASE_URL}/patients/${encodeURIComponent(patientId)}/history`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return data.slice(0, limit).map((r: any) => ({
+          id: r.record_id || r._id || String(Date.now()),
+          date: r.date || new Date().toISOString().split('T')[0],
+          type: (r.type as MedicalHistoryType) || 'Consultation',
+          title: r.title || r.diagnosis || 'Medical Record',
+          doctor: r.doctor_name || 'Doctor',
+          hospital: r.hospital_name || 'Hospital',
+          summary: r.notes || r.diagnosis || r.prescription || '',
+          prescriptionItems: r.prescription ? [{ medicine: r.prescription, dosage: 'As prescribed', duration: 'Follow regimen' }] : undefined,
+          fileName: r.file_name,
+          fileData: r.file_data,
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn('Backend history fetch error:', err);
+  }
+  return [];
 }
 
-/** TODO(API): GET /api/patients/:id/history/full */
-export async function getFullMedicalHistory(_patientId: string): Promise<MedicalHistoryEntry[]> {
-  const sorted = [...MOCK_HISTORY].sort((a, b) => b.date.localeCompare(a.date));
-  return delay(sorted);
+/** GET /patients/:id/history/full */
+export async function getFullMedicalHistory(patientId: string): Promise<MedicalHistoryEntry[]> {
+  return getRecentMedicalHistory(patientId, 200);
 }
 
-/** TODO(API): GET /api/patients/:id/profile */
+/** GET /auth/profile */
 export async function getPatientProfile(_patientId: string): Promise<PatientProfile> {
+  const token = localStorage.getItem('medichain_token') || 'demo-session-token-ananya';
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const profile = await res.json();
+      return {
+        ...MOCK_PROFILE,
+        ...profile,
+      };
+    }
+  } catch (err) {
+    console.warn('Backend getPatientProfile error:', err);
+  }
   return delay({ ...MOCK_PROFILE });
 }
 
-/** TODO(API): PUT /api/patients/:id/profile  body: Partial<PatientProfile> */
+/** PUT /auth/profile */
 export async function updatePatientProfile(
   _patientId: string,
   updates: Partial<PatientProfile>
@@ -208,6 +254,67 @@ export async function updatePatientProfile(
   if (updates.phone && updates.phone.replace(/\D/g, '').length < 10) {
     throw new Error('Please enter a valid phone number.');
   }
+
+  const token = localStorage.getItem('medichain_token') || 'demo-session-token-ananya';
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      return { ...MOCK_PROFILE, ...updated };
+    }
+  } catch (err) {
+    console.warn('Backend updatePatientProfile error:', err);
+  }
+
   MOCK_PROFILE = { ...MOCK_PROFILE, ...updates };
   return delay({ ...MOCK_PROFILE }, 900);
 }
+
+/** POST /patients/{id}/documents — Upload a medical document (prescription, lab report, etc.) */
+export async function uploadMedicalRecord(
+  patientId: string,
+  payload: {
+    title: string;
+    type?: string;
+    date?: string;
+    doctor_name?: string;
+    hospital_name?: string;
+    diagnosis?: string;
+    prescription?: string;
+    notes?: string;
+    file_data?: string;
+    file_name?: string;
+  }
+): Promise<MedicalHistoryEntry> {
+  const token = localStorage.getItem('medichain_token') || '';
+  const res = await fetch(`${API_BASE_URL}/patients/${encodeURIComponent(patientId)}/documents`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || 'Failed to upload document.');
+  }
+  const data = await res.json();
+  return {
+    id: data.record_id || String(Date.now()),
+    date: data.date || new Date().toISOString().split('T')[0],
+    type: (data.type as MedicalHistoryType) || 'Prescription',
+    title: data.title || data.diagnosis || payload.title,
+    doctor: data.doctor_name || payload.doctor_name || 'Self-Uploaded',
+    hospital: data.hospital_name || payload.hospital_name || 'External',
+    summary: data.notes || data.diagnosis || '',
+    fileName: payload.file_name,
+  };
+}

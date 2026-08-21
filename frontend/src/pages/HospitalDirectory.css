@@ -1,28 +1,128 @@
+/* ── Hospital Directory Page ─────────────────────────────────── */
+
+/* Page wrapper */
 .hospital-directory {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: 24px;
 }
 
+/* ── Page header ─────────────────────────────────────────────── */
+.hospital-directory__header {
+  margin-bottom: 0;
+}
+
+.hospital-directory__title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.hospital-directory__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
+}
+
+/* ── Controls block (search + filters) ───────────────────────── */
 .hospital-directory__controls {
-  padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
 }
 
+/* ── Search bar ──────────────────────────────────────────────── */
+.hospital-directory__search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+}
+
+.hospital-directory__search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.hospital-directory__search {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.hospital-directory__search::placeholder {
+  color: var(--color-text-muted);
+}
+
+.hospital-directory__search:focus {
+  border-color: var(--color-primary);
+}
+
+/* ── Filter chips row ────────────────────────────────────────── */
+.hospital-dir__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.hospital-dir__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;           /* rectangular chips, NOT pill */
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.hospital-dir__chip:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-alt);
+}
+
+/* Active chip — green accent */
+.hospital-dir__chip--active,
+.hospital-dir__chip.active {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+/* ── Filter row (sort + toggles alongside chips) ─────────────── */
 .hospital-directory__filter-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .hospital-directory__toggles {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -39,41 +139,73 @@
 .hospital-directory__emergency-toggle input {
   width: 16px;
   height: 16px;
-  accent-color: var(--color-coral-500);
+  accent-color: var(--color-danger);
   cursor: pointer;
 }
 
 .hospital-directory__sort-select {
   padding: 9px 14px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--color-border-strong);
+  border-radius: 8px;
+  border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-secondary);
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
+.hospital-directory__sort-select:focus {
+  border-color: var(--color-primary);
+}
+
+/* ── Hospital cards grid ─────────────────────────────────────── */
 .hospital-directory__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-5);
+  gap: 20px;
 }
 
+/* ── Empty state ─────────────────────────────────────────────── */
 .hospital-directory__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-12) var(--space-6);
+  gap: 12px;
+  padding: 64px 24px;
   text-align: center;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.hospital-directory__empty-icon {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.hospital-directory__empty h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .hospital-directory__empty p {
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  margin: 0;
+  max-width: 340px;
 }
 
+/* ── Result count label ──────────────────────────────────────── */
+.hospital-directory__count {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .hospital-directory__grid {
     grid-template-columns: repeat(2, 1fr);
@@ -84,8 +216,17 @@
   .hospital-directory__grid {
     grid-template-columns: 1fr;
   }
+
   .hospital-directory__filter-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hospital-directory__search-wrap {
+    max-width: 100%;
+  }
+
+  .hospital-dir__filters {
+    gap: 6px;
   }
 }

@@ -3,4 +3,8 @@ pymongo
 python-dotenv
 uvicorn[standard]
 email-validator
+bcrypt
+python-jose[cryptography]
+razorpay
 pytest
+httpx

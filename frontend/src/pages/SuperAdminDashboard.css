@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════
+   SuperAdminDashboard — Full Page Styles
+   ═══════════════════════════════════════════ */
+
+.sad-root {
+  min-height: 100vh;
+  background: #f7fffe;
+  background-image: radial-gradient(circle, rgba(167,243,208,0.45) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-color: #f7fffe;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  padding: 0 0 60px;
+}
+
+/* ── Header ── */
+.sad-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 30px 40px;
+  background: linear-gradient(125deg, #064e3b 0%, #059669 55%, #10b981 100%);
+  color: #fff;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(5,150,105,0.2);
+}
+.sad-header::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234,179,8,0.18) 0%, transparent 70%);
+  top: -120px; right: -60px;
+  pointer-events: none;
+}
+
+.sad-header__left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.sad-header__icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  background: rgba(255,255,255,0.14);
+  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sad-header__eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7cf5e3;
+}
+
+.sad-header__title {
+  margin: 0 0 6px;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+}
+
+.sad-header__sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #bdf0ea;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sad-header__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ── */
+.sad-btn {
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  white-space: nowrap;
+}
+.sad-btn--primary {
+  background: #0f766e;
+  color: #fff;
+}
+.sad-btn--primary:hover:not(:disabled) { background: #0a5b54; }
+.sad-btn--primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.sad-btn--ghost {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.sad-btn--ghost:hover { background: rgba(255,255,255,0.22); }
+
+.sad-btn--danger {
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+.sad-btn--danger:hover { background: #fee2e2; }
+
+/* ── Stats Bar ── */
+.sad-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 28px 36px;
+}
+
+.sad-stat-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(16,35,63,0.06);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.sad-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16,35,63,0.1);
+}
+.sad-stat-card--highlight {
+  border-top: 3px solid #0f766e;
+}
+
+.sad-stat-card__value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0a2a4d;
+  line-height: 1;
+}
+.sad-stat-card__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+/* ── Tabs ── */
+.sad-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 36px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 28px;
+}
+
+.sad-tab {
+  padding: 12px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sad-tab:hover { color: #0f766e; }
+.sad-tab--active {
+  color: #0f766e;
+  border-bottom-color: #0f766e;
+  font-weight: 700;
+}
+
+/* ── Section ── */
+.sad-section {
+  padding: 0 36px;
+}
+.sad-section__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.sad-section__head h3 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  color: #1a2130;
+}
+.sad-section__sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ── Alerts ── */
+.sad-alert {
+  margin: 0 36px 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sad-alert--error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.sad-alert--success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.sad-alert button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── Create Staff Form ── */
+.sad-create-form {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(16,35,63,0.06);
+}
+.sad-create-form h4 {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  color: #1a2130;
+}
+
+.sad-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sad-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sad-field span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+.sad-field input,
+.sad-field select {
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1a2130;
+  background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.sad-field input:focus,
+.sad-field select:focus {
+  outline: none;
+  border-color: #0f766e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(15,118,110,0.12);
+}
+
+/* ── Staff Cards Grid ── */
+.sad-staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.sad-staff-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 1px 4px rgba(16,35,63,0.05);
+  transition: box-shadow 0.15s ease, transform 0.08s ease;
+}
+.sad-staff-card:hover {
+  box-shadow: 0 6px 20px rgba(16,35,63,0.09);
+  transform: translateY(-1px);
+}
+
+.sad-staff-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sad-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.sad-staff-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.sad-staff-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a2130;
+}
+.sad-staff-card__email {
+  font-size: 0.8rem;
+  color: #64748b;
+  word-break: break-all;
+}
+
+.sad-role-badge {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+/* ── Permissions ── */
+.sad-perms__label {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+.sad-perms__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sad-perm-chip {
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  transition: all 0.15s ease;
+}
+.sad-perm-chip:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+  background: #f0fdf9;
+}
+.sad-perm-chip--on {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #fff;
+}
+.sad-perm-chip--on:hover {
+  background: #0a5b54;
+  border-color: #0a5b54;
+  color: #fff;
+}
+
+/* ── Payments Table ── */
+.sad-payments-table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(16,35,63,0.05);
+}
+
+.sad-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 0.88rem;
+}
+.sad-table thead {
+  background: #f8fafc;
+}
+.sad-table th {
+  padding: 13px 18px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+.sad-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1a2130;
+}
+.sad-table tr:last-child td { border-bottom: none; }
+.sad-table tbody tr:hover { background: #f8fafc; }
+
+.sad-status-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+}
+
+.sad-mono { font-family: "JetBrains Mono", "Fira Mono", ui-monospace, monospace; }
+.sad-muted { color: #94a3b8; }
+
+/* ── Loading ── */
+.sad-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sad-skeleton {
+  height: 90px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.sad-empty {
+  text-align: center;
+  padding: 48px 24px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .sad-header, .sad-stats, .sad-section { padding-left: 18px; padding-right: 18px; }
+  .sad-tabs { padding: 0 18px; overflow-x: auto; }
+  .sad-tab { padding: 12px 14px; white-space: nowrap; }
+  .sad-alert { margin-left: 18px; margin-right: 18px; }
+  .sad-staff-grid { grid-template-columns: 1fr; }
+  .sad-header { padding: 20px 18px; }
+}

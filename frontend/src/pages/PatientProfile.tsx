@@ -14,7 +14,7 @@ const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const GENDERS = ['Female', 'Male', 'Other'];
 
 export default function PatientProfile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState<PatientProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,6 +47,7 @@ export default function PatientProfile() {
     try {
       const updated = await updatePatientProfile(user.id, profile);
       setProfile(updated);
+      updateUser({ id: updated.id, name: updated.name, email: updated.email, phone: updated.phone, bloodGroup: updated.bloodGroup, abhaNumber: updated.abhaNumber, dateOfBirth: updated.dateOfBirth, gender: updated.gender });
       setDirty(false);
       setToast({ message: 'Profile updated successfully.', type: 'success' });
     } catch (err) {
@@ -58,9 +59,10 @@ export default function PatientProfile() {
 
   if (loading || !profile) {
     return (
-      <div className="profile-page">
-        <div className="skeleton" style={{ height: 180, borderRadius: 'var(--radius-lg)' }} />
-        <div className="skeleton" style={{ height: 320, marginTop: 24, borderRadius: 'var(--radius-lg)' }} />
+      <div className="profile">
+        <div className="skeleton" style={{ height: 120, borderRadius: 'var(--radius-lg)' }} />
+        <div className="skeleton" style={{ height: 280, borderRadius: 'var(--radius-lg)' }} />
+        <div className="skeleton" style={{ height: 220, borderRadius: 'var(--radius-lg)' }} />
       </div>
     );
   }
@@ -68,50 +70,55 @@ export default function PatientProfile() {
   const initials = profile.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <div className="profile-page">
+    <div className="profile">
       {/* Header card */}
-      <section className="profile-header card-surface fade-in-up">
-        <div className="profile-header__left">
-          <div className="profile-header__avatar-wrap">
-            <div className="profile-header__avatar">{initials}</div>
-            <button className="profile-header__avatar-edit" title="Change photo (not connected)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 4h4v4M9 20H5v-4M20 4l-7 7M4 20l7-7" />
-              </svg>
-            </button>
-          </div>
-          <div>
-            <h2>{profile.name}</h2>
-            <p className="text-secondary">{profile.email}</p>
-            <span className="profile-header__abha mono">ABHA: {profile.abhaNumber}</span>
+      <div className="profile__header-card">
+        <div className="profile__avatar">{initials}</div>
+        <div className="profile__header-info">
+          <div className="profile__name">{profile.name}</div>
+          <div className="profile__email">{profile.email}</div>
+          <div className="profile__meta-row">
+            {profile.abhaNumber && (
+              <span className="profile__abha">ABHA: {profile.abhaNumber}</span>
+            )}
+            {profile.bloodGroup && (
+              <span className="profile__blood-group">{profile.bloodGroup}</span>
+            )}
           </div>
         </div>
-        <span className="profile-header__blood-badge">
-          {profile.bloodGroup}
-          <span>Blood Group</span>
-        </span>
-      </section>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center' }}>
+          {dirty && (
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>Unsaved changes</span>
+          )}
+          <button className="btn btn-secondary" onClick={() => setDirty(false)} disabled={!dirty || saving}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving || !dirty}>
+            {saving ? <span className="spinner" /> : 'Save Changes'}
+          </button>
+        </div>
+      </div>
 
       {/* Personal Information */}
-      <section className="profile-section card-surface fade-in-up">
-        <h3 className="profile-section__title">Personal Information</h3>
-        <div className="profile-section__grid">
+      <div className="profile__section">
+        <h3 className="profile__section-title">Personal Information</h3>
+        <div className="profile__grid">
           <ProfileField label="Full Name" name="name" value={profile.name} onChange={(e: ChangeEvent<HTMLInputElement>) => updateField('name', e.target.value)} />
           <ProfileField label="Email Address" name="email" type="email" value={profile.email} onChange={(e: ChangeEvent<HTMLInputElement>) => updateField('email', e.target.value)} />
           <ProfileField label="Phone Number" name="phone" type="tel" value={profile.phone} onChange={(e: ChangeEvent<HTMLInputElement>) => updateField('phone', e.target.value)} />
           <ProfileField label="Date of Birth" name="dateOfBirth" type="date" value={profile.dateOfBirth} onChange={(e: ChangeEvent<HTMLInputElement>) => updateField('dateOfBirth', e.target.value)} />
           <ProfileField label="Gender" name="gender" type="select" value={profile.gender} options={GENDERS} onChange={(e) => updateField('gender', e.target.value)} />
         </div>
-      </section>
+      </div>
 
       {/* Medical Information */}
-      <section className="profile-section card-surface fade-in-up">
-        <h3 className="profile-section__title">Medical Information</h3>
-        <div className="profile-section__grid">
+      <div className="profile__section">
+        <h3 className="profile__section-title">Medical Information</h3>
+        <div className="profile__grid--2 profile__grid" style={{ marginBottom: 16 }}>
           <ProfileField label="Blood Group" name="bloodGroup" type="select" value={profile.bloodGroup} options={BLOOD_GROUPS} onChange={(e) => updateField('bloodGroup', e.target.value)} />
           <ProfileField label="ABHA Number" name="abhaNumber" mono value={profile.abhaNumber} onChange={(e: ChangeEvent<HTMLInputElement>) => updateField('abhaNumber', e.target.value)} />
         </div>
-        <div className="profile-section__tags">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <TagInput
             label="Allergies"
             tags={profile.allergies}
@@ -127,26 +134,16 @@ export default function PatientProfile() {
             onChange={(medicalConditions) => { setProfile((p) => (p ? { ...p, medicalConditions } : p)); setDirty(true); }}
           />
         </div>
-      </section>
+      </div>
 
       {/* Emergency Contact */}
-      <section className="profile-section card-surface fade-in-up">
-        <h3 className="profile-section__title">Emergency Contact</h3>
-        <div className="profile-section__grid">
+      <div className="profile__section">
+        <h3 className="profile__section-title">Emergency Contact</h3>
+        <div className="profile__grid">
           <ProfileField label="Contact Name" name="emergencyName" value={profile.emergencyContact.name} onChange={(e: ChangeEvent<HTMLInputElement>) => updateEmergencyField('name', e.target.value)} />
           <ProfileField label="Relationship" name="emergencyRelation" value={profile.emergencyContact.relation} onChange={(e: ChangeEvent<HTMLInputElement>) => updateEmergencyField('relation', e.target.value)} />
           <ProfileField label="Phone Number" name="emergencyPhone" type="tel" value={profile.emergencyContact.phone} onChange={(e: ChangeEvent<HTMLInputElement>) => updateEmergencyField('phone', e.target.value)} />
         </div>
-      </section>
-
-      {/* Save bar */}
-      <div className="profile-save-bar">
-        <span className="profile-save-bar__status">
-          {dirty ? 'You have unsaved changes' : 'All changes saved'}
-        </span>
-        <button className="btn btn-primary" onClick={handleSave} disabled={saving || !dirty}>
-          {saving ? <span className="spinner" /> : 'Save Changes'}
-        </button>
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}

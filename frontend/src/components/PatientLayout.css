@@ -1,15 +1,15 @@
+/* PatientLayout — Application shell */
 .patient-layout {
   display: flex;
   min-height: 100vh;
+  background: var(--color-bg);
 }
 
 .patient-layout__main {
   flex: 1;
   margin-left: var(--sidebar-width);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
   transition: margin-left var(--transition-base);
+  min-width: 0;
 }
 
 .patient-layout__main--collapsed {
@@ -17,20 +17,29 @@
 }
 
 .patient-layout__content {
-  flex: 1;
-  padding: var(--space-8);
-  max-width: 1440px;
-  width: 100%;
+  padding: var(--header-height) 0 0;
+  min-height: 100vh;
+}
+
+.patient-layout__page {
+  padding: 32px 32px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-  .patient-layout__main,
-  .patient-layout__main--collapsed {
+/* Mobile */
+@media (max-width: 1024px) {
+  .patient-layout__main {
     margin-left: 0;
   }
-  .patient-layout__content {
-    padding: var(--space-5);
-    padding-top: 72px;
+
+  .patient-layout__page {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .patient-layout__page {
+    padding: 20px 16px;
   }
 }

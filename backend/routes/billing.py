@@ -30,7 +30,7 @@ def generate_bill(payload: BillGenerateRequest, staff=Depends(get_current_staff)
     items = [{"description": f"Medicine: {(db.medicines.find_one({'_id': ObjectId(e['medicine_id'])}) or {}).get('name', 'Medicine')}", "quantity": e["quantity"], "unit_price": float(money(e["unit_price"])), "total": float(money(e["quantity"]) * money(e["unit_price"]))} for e in events]
     items += [item.model_dump() | {"total": float(money(item.quantity) * money(item.unit_price))} for item in payload.manual_items]
     subtotal = sum((money(item["total"]) for item in items), Decimal("0")); tax = (subtotal * money(payload.tax_rate) / Decimal("100")).quantize(MONEY, rounding=ROUND_HALF_UP)
-    bill = {"hospital_id": staff["hospital_id"], "patient_id": str(appointment["patient_id"]), "appointment_id": payload.appointment_id, "items": items, "subtotal": float(subtotal), "tax": float(tax), "total": float(subtotal + tax), "status": "issued", "created_at": datetime.now(timezone.utc)}
+    bill = {"hospital_id": staff["hospital_id"], "patient_id": str(appointment["patient_id"]), "appointment_id": payload.appointment_id, "items": items, "subtotal": float(subtotal), "tax": float(tax), "total": float(subtotal + tax), "status": "paid", "created_at": datetime.now(timezone.utc)}
     result = db.bills.insert_one(bill); bill["_id"] = result.inserted_id; return serialize(bill)
 
 @router.get("/{bill_id}")

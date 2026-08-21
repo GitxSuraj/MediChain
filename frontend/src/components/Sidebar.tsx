@@ -1,142 +1,163 @@
-import { NavLink } from 'react-router-dom';
-import { useState, type ReactElement } from 'react';
+import { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  User,
+  CalendarPlus,
+  CalendarCheck,
+  FileText,
+  Building2,
+  MapPin,
+  Bell,
+  ShoppingBag,
+  ShoppingCart,
+  ArrowLeftRight,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  X,
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import logoImg from '../assets/logo.jpg';
 import './Sidebar.css';
 
 interface NavItem {
+  to: string;
+  icon: React.ReactNode;
   label: string;
-  path: string;
-  icon: ReactElement;
 }
 
-const ICONS = {
-  dashboard: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <rect x="3" y="3" width="7" height="9" rx="2" /><rect x="14" y="3" width="7" height="5" rx="2" />
-      <rect x="14" y="12" width="7" height="9" rx="2" /><rect x="3" y="16" width="7" height="5" rx="2" />
-    </svg>
-  ),
-  profile: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
-    </svg>
-  ),
-  book: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />
-    </svg>
-  ),
-  status: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />
-    </svg>
-  ),
-  history: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M4 12a8 8 0 1 0 3-6.3" /><path d="M4 4v5h5" /><path d="M12 8v4l3 2" />
-    </svg>
-  ),
-  hospital: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M4 21V8l8-5 8 5v13" /><path d="M9 21v-6h6v6" /><path d="M12 8v4M10 10h4" />
-    </svg>
-  ),
-  map: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" />
-    </svg>
-  ),
-  reminder: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M10.5 20.5L3.5 13.5a5 5 0 1 1 7-7l7 7a5 5 0 1 1-7 7z" /><path d="M8.5 8.5l7 7" />
-    </svg>
-  ),
-  logout: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
-    </svg>
-  ),
-};
-
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: ICONS.dashboard },
-  { label: 'My Profile', path: '/profile', icon: ICONS.profile },
-  { label: 'Book Appointment', path: '/book-appointment', icon: ICONS.book },
-  { label: 'Appointment Status', path: '/appointment-status', icon: ICONS.status },
-  { label: 'Medical History', path: '/medical-history', icon: ICONS.history },
-  { label: 'Hospital Directory', path: '/hospitals', icon: ICONS.hospital },
-  { label: 'Find on Map', path: '/hospital-map', icon: ICONS.map },
-  { label: 'Medicine Reminders', path: '/medicine-reminders', icon: ICONS.reminder },
+  { to: '/dashboard',          icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+  { to: '/profile',            icon: <User size={18} />,            label: 'My Profile' },
+  { to: '/book-appointment',   icon: <CalendarPlus size={18} />,    label: 'Book Appointment' },
+  { to: '/appointment-status', icon: <CalendarCheck size={18} />,   label: 'Appointment Status' },
+  { to: '/medical-history',    icon: <FileText size={18} />,        label: 'Medical History' },
+  { to: '/hospitals',          icon: <Building2 size={18} />,       label: 'Hospital Directory' },
+  { to: '/hospital-map',       icon: <MapPin size={18} />,          label: 'Find on Map' },
+  { to: '/medicine-reminders', icon: <Bell size={18} />,            label: 'Medicine Reminders' },
+  { to: '/medicine-store',     icon: <ShoppingBag size={18} />,     label: 'Medicine Store' },
+  { to: '/my-orders',          icon: <ShoppingCart size={18} />,    label: 'My Orders' },
+  { to: '/transfer',           icon: <ArrowLeftRight size={18} />,  label: 'Request Transfer' },
 ];
 
 interface SidebarProps {
-  onLogout: () => void;
-  collapsed: boolean;
-  onToggleCollapse: () => void;
+  /** Controlled open state for mobile — passed from layout */
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function Sidebar({ onLogout, collapsed, onToggleCollapse }: SidebarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Collapse automatically on smaller desktops
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1280px)');
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) setCollapsed(true);
+    };
+    if (mq.matches) setCollapsed(true);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
+
+  const initials = (user?.name ?? 'P')
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <>
-      <button
-        className="sidebar-mobile-toggle"
-        onClick={() => setMobileOpen((v) => !v)}
-        aria-label="Toggle navigation"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 6h18M3 12h18M3 18h18" />
-        </svg>
-      </button>
+      {/* Mobile overlay */}
+      <div
+        className={`sidebar-overlay ${mobileOpen ? 'visible' : ''}`}
+        onClick={onMobileClose}
+        aria-hidden="true"
+      />
 
-      {mobileOpen && <div className="sidebar-scrim" onClick={() => setMobileOpen(false)} />}
+      <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
+             role="navigation" aria-label="Patient navigation">
 
-      <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''} ${mobileOpen ? 'sidebar--mobile-open' : ''}`}>
+        {/* Brand */}
         <div className="sidebar__brand">
-          <div className="sidebar__brand-mark">M</div>
-          {!collapsed && (
-            <div className="sidebar__brand-text">
-              <span className="sidebar__brand-name">MediChain</span>
-              <span className="sidebar__brand-tag mono">PATIENT PORTAL</span>
-            </div>
-          )}
+          <img src={logoImg} alt="MediChain" className="sidebar__logo" />
+          <div className="sidebar__brand-text">
+            <div className="sidebar__brand-name">MediChain</div>
+            <div className="sidebar__brand-sub">Patient Portal</div>
+          </div>
         </div>
 
+        {/* Nav */}
         <nav className="sidebar__nav">
           {NAV_ITEMS.map((item) => (
             <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) => `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
-              onClick={() => setMobileOpen(false)}
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `sidebar__item${isActive ? ' active' : ''}`}
               title={collapsed ? item.label : undefined}
+              onClick={onMobileClose}
             >
-              <span className="sidebar__link-icon">{item.icon}</span>
-              {!collapsed && <span className="sidebar__link-label">{item.label}</span>}
-              <span className="sidebar__link-indicator" />
+              <span className="sidebar__icon">{item.icon}</span>
+              <span className="sidebar__label">{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
+        {/* Divider */}
+        <div className="sidebar__divider" />
+
+        {/* Footer */}
         <div className="sidebar__footer">
-          <button className="sidebar__link sidebar__logout" onClick={onLogout} title={collapsed ? 'Log Out' : undefined}>
-            <span className="sidebar__link-icon">{ICONS.logout}</span>
-            {!collapsed && <span className="sidebar__link-label">Log Out</span>}
-          </button>
-          <button
-            className="sidebar__collapse-btn"
-            onClick={onToggleCollapse}
-            aria-label="Collapse sidebar"
-          >
-            <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform var(--transition-base)' }}
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+          {user && (
+            <div className="sidebar__user" title={collapsed ? user.name : undefined}>
+              <div className="sidebar__avatar">{initials}</div>
+              <div className="sidebar__user-info">
+                <div className="sidebar__user-name">{user.name}</div>
+                <div className="sidebar__user-role">Patient</div>
+              </div>
+            </div>
+          )}
+
+          <button className="sidebar__logout" onClick={handleLogout}
+                  title={collapsed ? 'Log Out' : undefined}>
+            <span className="sidebar__icon"><LogOut size={18} /></span>
+            <span className="sidebar__label">Log Out</span>
           </button>
         </div>
+
+        {/* Desktop collapse toggle */}
+        <button
+          className="sidebar__toggle"
+          onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
       </aside>
     </>
+  );
+}
+
+/** Mobile menu button — used in the header */
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      className="btn btn-ghost"
+      onClick={onClick}
+      aria-label="Open menu"
+      style={{ padding: '8px', borderRadius: '8px' }}
+    >
+      <Menu size={20} />
+    </button>
   );
 }

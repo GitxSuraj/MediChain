@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 class MedicineCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     generic_name: str = Field(min_length=1, max_length=200)
+    sku: str = Field(default="", max_length=50)
+    description: str = Field(default="", max_length=500)
     quantity: int = Field(ge=0)
     unit: str = Field(min_length=1, max_length=40)
     expiry_date: date

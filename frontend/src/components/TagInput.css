@@ -5,9 +5,9 @@
 }
 
 .tag-input__label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .tag-input__field {
@@ -15,18 +15,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  padding: 9px var(--space-3);
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--color-border-strong);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
-  transition: all var(--transition-fast);
-  min-height: 46px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  min-height: 42px;
 }
 
 .tag-input__field:focus-within {
-  border-color: var(--color-teal-500);
-  background: var(--color-white);
-  box-shadow: 0 0 0 4px var(--color-teal-100);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
 }
 
 .tag-input__field input {
@@ -36,7 +35,14 @@
   background: transparent;
   font-size: 0.86rem;
   padding: 4px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
 }
+
+.tag-input__field input::placeholder {
+  color: var(--color-text-muted);
+}
+
 .tag-input__field input:focus {
   outline: none;
 }
@@ -45,40 +51,39 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px 4px 12px;
+  padding: 3px 6px 3px 10px;
   border-radius: var(--radius-full);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .tag-input__field--coral .tag-input__chip {
-  background: var(--color-coral-100);
-  color: var(--color-coral-600);
+  background: var(--color-danger-bg);
+  color: #B91C1C;
+  border: 1px solid var(--color-danger-border);
 }
 
 .tag-input__field--violet .tag-input__chip {
-  background: var(--color-violet-100);
-  color: var(--color-violet-600);
+  background: var(--color-info-bg);
+  color: #1D4ED8;
+  border: 1px solid var(--color-info-border);
 }
 
-.tag-input__chip button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.tag-input__chip-remove {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  font-size: 0.6rem;
-  color: currentColor;
-  opacity: 0.7;
-}
-.tag-input__chip button:hover {
-  opacity: 1;
   background: rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast);
 }
 
-.tag-input__hint {
-  font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+.tag-input__chip-remove:hover {
+  background: rgba(0, 0, 0, 0.2);
 }

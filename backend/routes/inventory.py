@@ -53,3 +53,11 @@ def dispense_medicine(hospital_id: str, medicine_id: str, payload: DispenseReque
     except InvalidId as exc: raise HTTPException(400, "Invalid medicine ID.") from exc
     if not result: raise HTTPException(409, "Insufficient stock or medicine not found.")
     return result
+
+@router.get("/public")
+def public_inventory(hospital_id: str):
+    """Patient-facing: list available medicines (no auth required)."""
+    valid_hospital(hospital_id)
+    medicines = get_medicines(hospital_id)
+    # Return only fields patients need
+    return [{"id": m["id"], "name": m["name"], "generic_name": m.get("generic_name", ""), "price_per_unit": m["price_per_unit"], "quantity": m["quantity"], "category": m.get("category", ""), "unit": m.get("unit", ""), "sku": m.get("sku", ""), "description": m.get("description", "")} for m in medicines if m["quantity"] > 0]

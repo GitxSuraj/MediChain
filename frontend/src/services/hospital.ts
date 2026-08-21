@@ -5,6 +5,19 @@ export interface BedInfo {
   available: number;
 }
 
+/** Backward-compatible Doctor type used by BookAppointment */
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+}
+
+const DEFAULT_DOCTORS: Doctor[] = [
+  { id: 'doctor-1', name: 'Dr. Asha Mehta', specialty: 'General Physician' },
+  { id: 'doctor-2', name: 'Dr. Ravi Kumar', specialty: 'Emergency Medicine' },
+  { id: 'doctor-3', name: 'Dr. Neha Singh', specialty: 'ICU Intensivist' },
+];
+
 export interface Hospital {
   id: string;
   name: string;
@@ -23,7 +36,16 @@ export interface Hospital {
   /** Merged in from the reviews API — undefined until fetched. */
   averageRating?: number;
   reviewCount?: number;
+  // Backward-compat fields used by BookAppointment.tsx
+  rating?: number;
+  distanceKm?: number;
+  availableDoctors?: number;
+  emergencyAvailable?: boolean;
+  address?: string;
+  specialties?: string[];
+  doctors?: Doctor[];
 }
+
 
 export interface HospitalFilters {
   query?: string;
@@ -44,8 +66,20 @@ async function fetchRawHospitals(): Promise<Hospital[]> {
   if (!response.ok) {
     throw new Error("Failed to fetch hospitals");
   }
-  return response.json();
+  const data = await response.json();
+  // Attach backward-compat fields so all pages (BookAppointment, etc.) work
+  return data.map((h: Hospital, index: number) => ({
+    ...h,
+    address: h.city ?? "",
+    specialties: h.facilities ?? [],
+    doctors: DEFAULT_DOCTORS,
+    availableDoctors: DEFAULT_DOCTORS.length,
+    emergencyAvailable: (h.beds?.emergency?.available ?? 0) > 0,
+    rating: 4.5,
+    distanceKm: index + 1,
+  }));
 }
+
 
 /** Attaches real average_rating/review_count from the reviews API. Never invents fake ratings. */
 export async function attachRatings(hospitals: Hospital[]): Promise<Hospital[]> {

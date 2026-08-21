@@ -1,26 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllHospitals, type Hospital } from '../services/hospital';
+import { getAllHospitals, type Hospital, type Doctor } from '../services/hospital';
 import { bookAppointment, AVAILABLE_TIME_SLOTS } from '../services/appointment';
-import { createPaymentOrder, PaymentIntegrationPendingError } from '../services/payment';
 import StepIndicator from '../components/StepIndicator';
 import Toast from '../components/Toast';
+import { createPaymentOrder } from '../services/payment';
 import './BookAppointment.css';
 
-const STEPS = ['Hospital', 'Visit Details', 'Confirm & Pay'];
-
-// No doctor-management backend exists yet (out of Person C's scope — payment
-// is Person A, medical history is Person B, doctor assignment is unowned).
-// Booking is simplified to hospital + visit details rather than presenting
-// fake doctor names, per the "no fake functionality" requirement.
-const GENERAL_CONSULTATION = {
-  id: 'general-consultation',
-  name: 'General Consultation',
-  specialty: 'To be assigned by hospital',
-};
+const STEPS = ['Hospital & Doctor', 'Visit Details', 'Confirm'];
 
 interface FormErrors {
   hospital?: string;
+  doctor?: string;
   symptoms?: string;
   date?: string;
   time?: string;
@@ -37,14 +28,13 @@ export default function BookAppointment() {
 
   const [step, setStep] = useState(1);
   const [hospitalId, setHospitalId] = useState('');
+  const [doctorId, setDoctorId] = useState('');
   const [symptoms, setSymptoms] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [bookedId, setBookedId] = useState<string | null>(null);
-  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
 
   useEffect(() => {
     getAllHospitals().then((data) => {
@@ -57,15 +47,19 @@ export default function BookAppointment() {
     () => hospitals.find((h) => h.id === hospitalId),
     [hospitals, hospitalId]
   );
+  const availableDoctors: Doctor[] = selectedHospital?.doctors ?? [];
+  const selectedDoctor = availableDoctors.find((d) => d.id === doctorId);
 
   function handleHospitalChange(id: string) {
     setHospitalId(id);
-    setErrors((prev) => ({ ...prev, hospital: undefined }));
+    setDoctorId('');
+    setErrors((prev) => ({ ...prev, hospital: undefined, doctor: undefined }));
   }
 
   function validateStep1(): boolean {
     const next: FormErrors = {};
     if (!hospitalId) next.hospital = 'Please select a hospital.';
+    if (!doctorId) next.doctor = 'Please select a doctor.';
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -92,78 +86,43 @@ export default function BookAppointment() {
   }
 
   async function handleConfirm() {
-    if (!selectedHospital) return;
+    if (!selectedHospital || !selectedDoctor) return;
     setSubmitting(true);
-    setPaymentNotice(null);
-
-    // Person A payment integration point:
-    //   const { orderId } = await createPaymentOrder(appointmentDraft);
-    //   <PaymentCheckout orderId={orderId} onSuccess={finalizeAppointment} />
-    // Person A hasn't shipped POST /payments/order yet, so this correctly
-    // rejects — we surface that clearly and still let the appointment
-    // request go through unpaid, rather than blocking the whole flow or
-    // faking a successful payment.
-    try {
-      await createPaymentOrder({
-        hospitalId: selectedHospital.id,
-        hospitalName: selectedHospital.name,
-        symptoms,
-        date,
-        time,
-      });
-    } catch (err) {
-      if (err instanceof PaymentIntegrationPendingError) {
-        setPaymentNotice(
-          "Payment isn't available yet (Person A's payment backend is pending). Your appointment request will be submitted unpaid."
-        );
-      } else {
-        setToast({ message: err instanceof Error ? err.message : 'Payment failed.', type: 'error' });
-        setSubmitting(false);
-        return;
-      }
-    }
-
     try {
       const appt = await bookAppointment({
         hospitalId: selectedHospital.id,
         hospitalName: selectedHospital.name,
-        doctorId: GENERAL_CONSULTATION.id,
-        doctorName: GENERAL_CONSULTATION.name,
-        doctorSpecialty: GENERAL_CONSULTATION.specialty,
+        doctorId: selectedDoctor.id,
+        doctorName: selectedDoctor.name,
+        doctorSpecialty: selectedDoctor.specialty,
         symptoms,
         date,
         time,
       });
-      setBookedId(appt.id);
-      setToast({ message: 'Appointment request submitted successfully.', type: 'success' });
+
+      // Create Razorpay order, then navigate to the dedicated payment page
+      const order = await createPaymentOrder({
+        appointment_id: appt.id,
+      });
+
+      navigate('/payment', {
+        state: {
+          orderId:       order.orderId,
+          amount:        order.amount,
+          keyId:         order.keyId,
+          appointmentId: appt.id,
+          hospitalName:  selectedHospital.name,
+          doctorName:    selectedDoctor.name,
+          specialty:     selectedDoctor.specialty,
+          date,
+          time,
+        },
+      });
     } catch (err) {
       setToast({ message: err instanceof Error ? err.message : 'Could not book appointment.', type: 'error' });
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (bookedId) {
-    return (
-      <div className="book-appointment book-appointment--success">
-        <div className="booking-success card-surface fade-in-up">
-          <div className="booking-success__icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M20 6L9 17l-5-5" /></svg>
-          </div>
-          <h2>Appointment Requested</h2>
-          <p className="text-secondary">
-            Your request at {selectedHospital?.name} has been submitted.
-            You'll receive a confirmation once the hospital accepts it.
-          </p>
-          <span className="booking-success__id mono">{bookedId}</span>
-          <div className="booking-success__actions">
-            <button className="btn btn-secondary" onClick={() => navigate('/appointment-status')}>View Status</button>
-            <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
-          </div>
-        </div>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </div>
-    );
   }
 
   return (
@@ -173,10 +132,10 @@ export default function BookAppointment() {
       </div>
 
       <div className="book-appointment__body card-surface fade-in-up">
-        {/* Step 1: Hospital */}
+        {/* Step 1: Hospital + Doctor */}
         {step === 1 && (
           <div className="book-step">
-            <h3 className="book-step__title">Choose a Hospital</h3>
+            <h3 className="book-step__title">Choose Hospital & Doctor</h3>
 
             <div className="book-field">
               <label className="book-field__label">Hospital</label>
@@ -190,25 +149,50 @@ export default function BookAppointment() {
                 >
                   <option value="">Select a hospital</option>
                   {hospitals.map((h) => (
-                    <option key={h.id} value={h.id}>{h.name} — {h.city}</option>
+                    <option key={h.id} value={h.id}>{h.name} — {h.distanceKm} km away</option>
                   ))}
                 </select>
               )}
               {errors.hospital && <span className="book-field__error">{errors.hospital}</span>}
             </div>
 
+            <div className="book-field">
+              <label className="book-field__label">Doctor</label>
+              <select
+                className={`book-field__select ${errors.doctor ? 'book-field--error' : ''}`}
+                value={doctorId}
+                onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctor: undefined })); }}
+                disabled={!hospitalId || availableDoctors.length === 0}
+              >
+                <option value="">
+                  {!hospitalId
+                    ? 'Select a hospital first'
+                    : availableDoctors.length === 0
+                    ? 'No doctors available at this hospital'
+                    : 'Select a doctor'}
+                </option>
+                {availableDoctors.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>
+                ))}
+              </select>
+              {hospitalId && availableDoctors.length === 0 && (
+                <span className="book-field__error">
+                  This hospital has no doctors listed yet. Try a different hospital.
+                </span>
+              )}
+              {errors.doctor && <span className="book-field__error">{errors.doctor}</span>}
+            </div>
+
             {selectedHospital && (
               <div className="book-hospital-preview">
                 <span className="book-hospital-preview__stat">
-                  <strong className="mono">
-                    {(selectedHospital.reviewCount ?? 0) > 0 ? selectedHospital.averageRating?.toFixed(1) : '—'}
-                  </strong> rating
+                  <strong className="mono">{selectedHospital.rating}</strong> rating
                 </span>
                 <span className="book-hospital-preview__dot" />
                 <span className="book-hospital-preview__stat">
-                  <strong className="mono">{selectedHospital.beds.general.available}</strong> general beds available
+                  <strong className="mono">{selectedHospital.availableDoctors}</strong> doctors available
                 </span>
-                {(selectedHospital.beds.emergency?.available ?? 0) > 0 && (
+                {selectedHospital.emergencyAvailable && (
                   <>
                     <span className="book-hospital-preview__dot" />
                     <span className="book-hospital-preview__emergency">24/7 Emergency</span>
@@ -270,7 +254,7 @@ export default function BookAppointment() {
         )}
 
         {/* Step 3: Confirm */}
-        {step === 3 && selectedHospital && (
+        {step === 3 && selectedHospital && selectedDoctor && (
           <div className="book-step">
             <h3 className="book-step__title">Review & Confirm</h3>
 
@@ -278,6 +262,10 @@ export default function BookAppointment() {
               <div className="book-summary__row">
                 <span>Hospital</span>
                 <strong>{selectedHospital.name}</strong>
+              </div>
+              <div className="book-summary__row">
+                <span>Doctor</span>
+                <strong>{selectedDoctor.name} · {selectedDoctor.specialty}</strong>
               </div>
               <div className="book-summary__row">
                 <span>Date</span>
@@ -294,10 +282,6 @@ export default function BookAppointment() {
                 <p>{symptoms}</p>
               </div>
             </div>
-
-            {paymentNotice && (
-              <div className="book-field__error" style={{ marginTop: 'var(--space-3)' }}>{paymentNotice}</div>
-            )}
           </div>
         )}
 

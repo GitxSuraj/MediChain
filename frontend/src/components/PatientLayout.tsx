@@ -1,28 +1,34 @@
-import { useState, type ReactNode } from 'react';
-import Sidebar from './Sidebar';
+import { useState } from 'react';
+import Sidebar, { MobileMenuButton } from './Sidebar';
 import Navbar from './Navbar';
-import { useAuth } from '../context/AuthContext';
 import './PatientLayout.css';
 
 interface PatientLayoutProps {
-  children: ReactNode;
-  title: string;
+  title?: string;
+  children: React.ReactNode;
 }
 
-export default function PatientLayout({ children, title }: PatientLayoutProps) {
-  const { logout } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+export default function PatientLayout({ title = 'Dashboard', children }: PatientLayoutProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="patient-layout">
       <Sidebar
-        onLogout={logout}
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((v) => !v)}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
       />
-      <div className={`patient-layout__main ${collapsed ? 'patient-layout__main--collapsed' : ''}`}>
-        <Navbar title={title} />
-        <main className="patient-layout__content">{children}</main>
+
+      <div className="patient-layout__main">
+        <Navbar
+          title={title}
+          onMobileMenuClick={() => setMobileOpen(true)}
+        />
+
+        <div className="patient-layout__content">
+          <div className="patient-layout__page">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );

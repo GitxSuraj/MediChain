@@ -1,9 +1,10 @@
 .filter-tabs {
   display: flex;
-  gap: 6px;
-  padding: 5px;
+  gap: 4px;
+  padding: 4px;
   background: var(--color-surface-alt);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   width: fit-content;
   overflow-x: auto;
   max-width: 100%;
@@ -12,14 +13,17 @@
 .filter-tabs__item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.83rem;
-  font-weight: 600;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
   white-space: nowrap;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  background: transparent;
+  border: none;
 }
 
 .filter-tabs__item:hover {
@@ -27,21 +31,22 @@
 }
 
 .filter-tabs__item--active {
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-text-primary);
-  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
 }
 
 .filter-tabs__count {
   font-size: 0.7rem;
-  font-weight: 700;
-  padding: 1px 7px;
+  font-weight: 600;
+  padding: 1px 6px;
   border-radius: var(--radius-full);
   background: var(--color-surface-alt);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .filter-tabs__item--active .filter-tabs__count {
-  background: var(--color-teal-100);
-  color: var(--color-teal-600);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
 }

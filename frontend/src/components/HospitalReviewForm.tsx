@@ -53,16 +53,17 @@ export default function HospitalReviewForm({ hospitalId, hospitalName, onSubmitt
     setSubmitting(true);
     setStatus(null);
     try {
+      const token = localStorage.getItem('medichain_token') || '';
       const response = await fetch(`${API_URL}/hospitals/${encodeURIComponent(hospitalId)}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          patient_id: user.id,
           appointment_id: selectedAppointmentId,
           rating,
           comment: comment.trim(),
         }),
       });
+
 
       if (response.status === 403) {
         setStatus({

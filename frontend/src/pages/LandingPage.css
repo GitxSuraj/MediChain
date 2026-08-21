@@ -138,47 +138,86 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
-.landing-hero__svg {
+.landing-hero__logo-card {
+  position: relative;
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 24px;
+  padding: 44px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  transition: all var(--transition-base);
+}
+
+.landing-hero__logo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.18);
+  border-color: var(--color-primary-border);
+}
+
+.landing-hero__logo-glow {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.landing-hero__logo-img {
+  width: 230px;
+  max-width: 100%;
   height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  border-radius: 12px;
 }
 
-.hero-svg-card {
-  fill: var(--color-surface);
-  stroke: var(--color-border);
-  stroke-width: 1.5;
+.landing-hero__badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  z-index: 2;
+  white-space: nowrap;
 }
 
-.hero-svg-node {
-  fill: var(--color-white);
-  stroke: var(--color-teal-500);
-  stroke-width: 2.5;
+.landing-hero__badge--top {
+  top: -12px;
+  left: 20px;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-border);
 }
 
-.hero-svg-node--center {
-  fill: var(--color-teal-100);
-  stroke: var(--color-navy-800);
-  stroke-width: 2.5;
+.landing-hero__badge--bottom {
+  bottom: -12px;
+  right: 20px;
 }
 
-.hero-svg-link {
-  stroke: var(--color-border-strong);
-  stroke-width: 2;
-  stroke-dasharray: 4 4;
-}
-
-.hero-svg-cross {
-  fill: var(--color-navy-800);
-}
-
-.hero-svg-pulse {
-  stroke: var(--color-teal-500);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.landing-hero__badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
 }
 
 /* ---------- Steps ---------- */

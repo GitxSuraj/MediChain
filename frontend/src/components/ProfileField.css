@@ -5,28 +5,28 @@
 }
 
 .profile-field__label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .profile-field input,
 .profile-field select {
-  padding: 11px var(--space-4);
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--color-border-strong);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   font-size: 0.88rem;
   color: var(--color-text-primary);
-  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .profile-field input:focus,
 .profile-field select:focus {
   outline: none;
-  border-color: var(--color-teal-500);
-  background: var(--color-white);
-  box-shadow: 0 0 0 4px var(--color-teal-100);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
 }
 
 .profile-field select {

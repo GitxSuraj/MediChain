@@ -1,7 +1,7 @@
 {
   "name": "medichain-frontend",
   "private": true,
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
     "@types/leaflet": "^1.9.22",
     "framer-motion": "^12.42.2",
     "leaflet": "^1.9.4",
-    "lucide-react": "^1.24.0",
+    "lucide-react": "^1.33.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0",

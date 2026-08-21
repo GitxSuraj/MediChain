@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import logoImg from '../assets/logo.jpg';
 import './LandingPage.css';
+
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
@@ -97,9 +99,9 @@ export default function LandingPage() {
       <header className="landing-nav">
         <div className="landing-nav__inner">
           <div className="landing-brand">
-            <span className="landing-brand__mark">M</span>
-            <span className="landing-brand__name">MediChain</span>
+            <img src={logoImg} alt="MediChain" style={{ height: 44, width: 'auto', objectFit: 'contain' }} />
           </div>
+
           <nav className="landing-nav__links">
             <a href="#how-it-works">How It Works</a>
             <a href="#value">For Patients &amp; Hospitals</a>
@@ -143,33 +145,18 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
-            aria-hidden="true"
           >
-            <svg viewBox="0 0 360 340" fill="none" xmlns="http://www.w3.org/2000/svg" className="landing-hero__svg">
-              <rect x="8" y="8" width="344" height="324" rx="24" className="hero-svg-card" />
-
-              {/* network nodes representing connected hospitals */}
-              <circle cx="90" cy="90" r="7" className="hero-svg-node" />
-              <circle cx="270" cy="70" r="7" className="hero-svg-node" />
-              <circle cx="290" cy="200" r="7" className="hero-svg-node" />
-              <circle cx="80" cy="230" r="7" className="hero-svg-node" />
-              <circle cx="180" cy="170" r="10" className="hero-svg-node hero-svg-node--center" />
-              <line x1="90" y1="90" x2="180" y2="170" className="hero-svg-link" />
-              <line x1="270" y1="70" x2="180" y2="170" className="hero-svg-link" />
-              <line x1="290" y1="200" x2="180" y2="170" className="hero-svg-link" />
-              <line x1="80" y1="230" x2="180" y2="170" className="hero-svg-link" />
-
-              {/* central medical cross */}
-              <rect x="168" y="146" width="24" height="48" rx="4" className="hero-svg-cross" />
-              <rect x="156" y="158" width="48" height="24" rx="4" className="hero-svg-cross" />
-
-              {/* pulse / heartbeat line across the bottom */}
-              <path
-                d="M30 280 H120 L140 250 L160 305 L180 265 L195 280 H330"
-                className="hero-svg-pulse"
-                fill="none"
-              />
-            </svg>
+            <div className="landing-hero__logo-card">
+              <div className="landing-hero__logo-glow" />
+              <img src={logoImg} alt="MediChain" className="landing-hero__logo-img" />
+              <div className="landing-hero__badge landing-hero__badge--top">
+                <span className="landing-hero__badge-dot" />
+                <span>Unified Hospital Network</span>
+              </div>
+              <div className="landing-hero__badge landing-hero__badge--bottom">
+                <span>⚡ Real-Time Bed &amp; ICU Tracking</span>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>

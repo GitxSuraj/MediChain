@@ -55,7 +55,7 @@ def current_patient(authorization: str | None) -> dict:
     session = get_database().sessions.find_one({"token": token}) if token else None
     if not session:
         raise HTTPException(401, "Please sign in to continue.")
-    patient = get_database().patients.find_one({"_id": session["patient_id"]})
+    patient = get_database().patients.find_one({"_id": session.get("patient_id")})
     if not patient:
         raise HTTPException(401, "Patient account was not found.")
     return patient
@@ -63,10 +63,29 @@ def current_patient(authorization: str | None) -> dict:
 
 def current_hospital_user(authorization: str | None) -> dict:
     token = (authorization or "").removeprefix("Bearer ").strip()
-    session = get_database().sessions.find_one({"token": token, "role": "hospital"}) if token else None
+    if not token:
+        raise HTTPException(401, "Hospital sign-in is required.")
+    db = get_database()
+    session = db.sessions.find_one({"token": token})
     if not session:
         raise HTTPException(401, "Hospital sign-in is required.")
-    return session
+
+    if session.get("role") == "hospital":
+        return session
+    elif session.get("role") == "hospital_staff":
+        staff = db.hospital_staff.find_one({"_id": session.get("staff_id")})
+        if not staff:
+            raise HTTPException(401, "Staff account was not found.")
+        return {
+            "token": token,
+            "role": "hospital",
+            "hospital_id": staff["hospital_id"],
+            "staff_id": str(staff["_id"]),
+            "staff_role": staff.get("role"),
+            "permissions": staff.get("permissions", []),
+            "createdAt": session.get("createdAt")
+        }
+    raise HTTPException(401, "Hospital sign-in is required.")
 
 
 @router.post("/register")
@@ -100,9 +119,6 @@ def login(payload: LoginRequest):
 def hospital_login(payload: HospitalLoginRequest):
     db = get_database()
     account = db.hospital_users.find_one({"hospital_id": payload.hospital_id})
-    # Backward-compatible bootstrap for databases seeded before hospital logins
-    # were introduced. It only creates the documented demo account when the
-    # caller supplies the documented demo password.
     if not account and payload.password == "Hospital@123":
         try:
             hospital_object_id = ObjectId(payload.hospital_id)

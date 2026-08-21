@@ -23,6 +23,11 @@ export interface ReminderInput {
   is_active: boolean;
 }
 
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = localStorage.getItem('medichain_token') || '';
+  return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...extra };
+}
+
 async function parseOrThrow(response: Response) {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -32,14 +37,16 @@ async function parseOrThrow(response: Response) {
 }
 
 export async function getReminders(patientId: string): Promise<Reminder[]> {
-  const response = await fetch(`${API_URL}/patients/${encodeURIComponent(patientId)}/reminders`);
+  const response = await fetch(`${API_URL}/patients/${encodeURIComponent(patientId)}/reminders`, {
+    headers: authHeaders(),
+  });
   return parseOrThrow(response);
 }
 
 export async function createReminder(patientId: string, data: ReminderInput): Promise<Reminder> {
   const response = await fetch(`${API_URL}/patients/${encodeURIComponent(patientId)}/reminders`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(data),
   });
   return parseOrThrow(response);
@@ -54,7 +61,7 @@ export async function updateReminder(
     `${API_URL}/patients/${encodeURIComponent(patientId)}/reminders/${encodeURIComponent(reminderId)}`,
     {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify(data),
     }
   );
@@ -64,7 +71,7 @@ export async function updateReminder(
 export async function deleteReminder(patientId: string, reminderId: string): Promise<void> {
   const response = await fetch(
     `${API_URL}/patients/${encodeURIComponent(patientId)}/reminders/${encodeURIComponent(reminderId)}`,
-    { method: 'DELETE' }
+    { method: 'DELETE', headers: authHeaders() }
   );
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

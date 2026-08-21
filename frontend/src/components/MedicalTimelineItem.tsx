@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import type { ReactElement } from 'react';
+import type { JSX } from 'react';
 import type { MedicalHistoryEntry } from '../services/patient';
 import './MedicalTimelineItem.css';
 
-const TYPE_ICON: Record<MedicalHistoryEntry['type'], ReactElement> = {
+const TYPE_ICON: Record<MedicalHistoryEntry['type'], JSX.Element> = {
   Consultation: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M8 10h8M8 14h5" /><rect x="3" y="4" width="18" height="16" rx="2" />
@@ -49,6 +49,14 @@ export default function MedicalTimelineItem({ entry, isLast }: MedicalTimelineIt
     year: 'numeric',
   });
 
+  function openFile() {
+    if (!entry.fileData) return;
+    const win = window.open();
+    if (win) {
+      win.document.write(`<iframe src="${entry.fileData}" style="width:100%;height:100%;border:none"></iframe>`);
+    }
+  }
+
   return (
     <div className="medical-timeline-item">
       <div className="medical-timeline-item__rail">
@@ -70,7 +78,22 @@ export default function MedicalTimelineItem({ entry, isLast }: MedicalTimelineIt
         </div>
 
         <p className="medical-timeline-item__meta text-secondary">{entry.doctor} · {entry.hospital}</p>
-        <p className="medical-timeline-item__summary">{entry.summary}</p>
+        {entry.summary && <p className="medical-timeline-item__summary">{entry.summary}</p>}
+
+        {/* File attachment */}
+        {entry.fileData && (
+          <button
+            className="btn btn-secondary"
+            onClick={openFile}
+            style={{ marginTop: '0.5rem', fontSize: '0.8rem', padding: '4px 12px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            {entry.fileName || 'View Attached File'}
+          </button>
+        )}
 
         {hasDetails && (
           <>
@@ -113,4 +136,4 @@ export default function MedicalTimelineItem({ entry, isLast }: MedicalTimelineIt
       </div>
     </div>
   );
-}
+}

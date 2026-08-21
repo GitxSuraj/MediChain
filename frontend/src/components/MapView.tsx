@@ -151,12 +151,19 @@ export default function MapView({ hospitals, onHospitalSelect }: MapViewProps) {
             <button key={h.id} className="map-view__list-item" onClick={() => onHospitalSelect?.(h)}>
               <span className="map-view__list-name">{h.name}</span>
               <span className="map-view__list-meta mono">
-                {distance != null ? `${distance.toFixed(1)} km` : h.city}
+                {distance != null ? `${distance.toFixed(1)} km away` : h.city}
+              </span>
+              <span className="map-view__list-beds" style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: 2, display: 'block', textAlign: 'left' }}>
+                🛏 {h.beds.general.available}/{h.beds.general.total} beds &nbsp;
+                💊 {h.beds.oxygen.available} O₂ &nbsp;
+                🚨 {h.beds.emergency.available} ER &nbsp;
+                🏥 {h.beds.icu.available} ICU
               </span>
             </button>
           );
         })}
         {located.length === 0 && <p className="text-secondary">No hospitals with location data yet.</p>}
+
       </div>
     </div>
   );

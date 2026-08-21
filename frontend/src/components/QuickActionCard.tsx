@@ -1,19 +1,29 @@
 import { useNavigate } from 'react-router-dom';
-import type { ReactElement } from 'react';
+import type { JSX } from 'react';
 import './QuickActionCard.css';
 
 interface QuickActionCardProps {
   label: string;
   description: string;
-  path: string;
-  icon: ReactElement;
+  path?: string;
+  onClick?: () => void;
+  icon: JSX.Element;
   accent: 'teal' | 'violet' | 'coral' | 'amber';
 }
 
-export default function QuickActionCard({ label, description, path, icon, accent }: QuickActionCardProps) {
+export default function QuickActionCard({ label, description, path, onClick, icon, accent }: QuickActionCardProps) {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (path) {
+      navigate(path);
+    }
+  };
+
   return (
-    <button className={`quick-action quick-action--${accent}`} onClick={() => navigate(path)}>
+    <button className={`quick-action quick-action--${accent}`} onClick={handleClick}>
       <span className="quick-action__icon">{icon}</span>
       <span className="quick-action__text">
         <span className="quick-action__label">{label}</span>
