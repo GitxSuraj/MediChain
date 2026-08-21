@@ -152,28 +152,6 @@ def seed_hospitals() -> int:
             upsert=True,
         )
 
-        # Seed default hospital_staff super admin
-        slug = hospital["name"].lower().replace(" ", "").replace("'", "").replace("-", "")
-        admin_email = f"admin@{slug}.com"
-        admin_salt = secrets.token_hex(16)
-        db.hospital_staff.update_one(
-            {"email": admin_email},
-            {"$setOnInsert": {
-                "hospital_id": hospital_id_str,
-                "name": f"{hospital['name']} Admin",
-                "email": admin_email,
-                "role": "super_admin",
-                "permissions": [
-                    "manage_beds", "manage_transfers", "view_patients",
-                    "assign_doctors", "manage_inventory", "manage_billing"
-                ],
-                "password_salt": admin_salt,
-                "password_hash": _hash("Hospital@123", admin_salt),
-                "created_at": datetime.now(timezone.utc)
-            }},
-            upsert=True
-        )
-
         # Seed initial medicines if hospital has none, or ensure medicines exist
         for med in EXPANDED_MEDICINES:
             med_doc = dict(med)

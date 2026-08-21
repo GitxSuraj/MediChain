@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { staffLogin } from '../services/api.js';
 import logoImg from '../assets/logo.jpg';
@@ -47,9 +47,6 @@ export default function HospitalLogin() {
   function selectHospital(h) {
     setSelectedHospital(h);
     setError('');
-    const slug = (h.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    setEmail(`admin@${slug || 'hospital'}.com`);
-    setPassword('Hospital@123');
     setStep(2);
   }
 
@@ -58,10 +55,16 @@ export default function HospitalLogin() {
     setError('');
     setLoading(true);
     try {
-      const body = await staffLogin(email, password, selectedHospital.id);
+      const body = await staffLogin(email, password);
+
+      // Verify the staff belongs to the selected hospital
+      if (body.user.hospital_id !== selectedHospital.id) {
+        throw new Error(`These credentials belong to a different hospital, not ${selectedHospital.name}.`);
+      }
 
       localStorage.setItem('medichain_hospital_token', body.token);
       localStorage.setItem('medichain_staff', JSON.stringify(body.user));
+      // Store full hospital info (not hardcoded "Hospital" anymore)
       localStorage.setItem('medichain_hospital', JSON.stringify({
         id:   selectedHospital.id,
         name: selectedHospital.name,
@@ -69,7 +72,7 @@ export default function HospitalLogin() {
         type: selectedHospital.type || 'hospital',
       }));
 
-      if (body.user.role === 'super_admin' || !body.user.role) {
+      if (body.user.role === 'super_admin') {
         navigate('/super-admin');
       } else {
         navigate('/admin');
@@ -177,7 +180,7 @@ export default function HospitalLogin() {
             </button>
 
             <h2 className="hl-heading">Admin sign in</h2>
-            <p className="hl-sub">Enter staff credentials for {selectedHospital.name}.</p>
+            <p className="hl-sub">Enter your staff credentials for this hospital.</p>
 
             <form className="hl-form" onSubmit={submit}>
               <label className="hl-field">
@@ -226,8 +229,9 @@ export default function HospitalLogin() {
               </button>
             </form>
 
-            <p className="hl-hint" style={{ marginTop: '16px', background: 'rgba(16, 185, 129, 0.08)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-              ⚡ <strong>Master Password:</strong> <code>Hospital@123</code> (Pre-filled)
+            <p className="hl-hint">
+              Each hospital has its own staff accounts.<br />
+              Contact your hospital admin if you don't have access.
             </p>
           </div>
         )}
