@@ -254,3 +254,33 @@ def get_history(patient_id: str, authorization: str | None = Header(default=None
         serialize(x)
         for x in sorted(records, key=lambda r: r.get("date", ""), reverse=True)
     ]
+
+
+# ---------------------------------------------------------------------------
+# Delete: patient can delete a medical record / history entry
+# ---------------------------------------------------------------------------
+
+@router.delete("/{patient_id}/history/{record_id}", status_code=200)
+def delete_medical_record(
+    patient_id: str,
+    record_id: str,
+    authorization: str | None = Header(default=None),
+):
+    """Delete a medical record / document by ID."""
+    patient = current_patient(authorization)
+    if str(patient["_id"]) != patient_id:
+        raise HTTPException(403, "You can only delete records from your own profile.")
+
+    db = get_database()
+    try:
+        obj_id = ObjectId(record_id)
+    except Exception:
+        raise HTTPException(400, "Invalid record ID.")
+
+    res = db[HISTORY_COLLECTION].delete_one({"_id": obj_id, "patient_id": patient_id})
+    if res.deleted_count == 0:
+        res_legacy = db[LEGACY_HISTORY_COLLECTION].delete_one({"_id": obj_id, "patient_id": patient_id})
+        if res_legacy.deleted_count == 0:
+            raise HTTPException(404, "Medical record not found.")
+
+    return {"message": "Medical record deleted successfully.", "record_id": record_id}

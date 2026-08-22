@@ -5,6 +5,7 @@ import {
   getPatientProfile,
   updatePatientProfile,
   uploadMedicalRecord,
+  deleteMedicalRecord,
   type MedicalHistoryEntry,
   type MedicalHistoryType,
   type PatientProfile,
@@ -161,6 +162,16 @@ export default function PatientHistory() {
       setVitals(vitals.filter((v) => v.id !== id));
     } catch (err: any) {
       alert(err.message || 'Failed to delete vital');
+    }
+  };
+
+  const handleDeleteMedicalRecord = async (id: string) => {
+    if (!user || !window.confirm('Are you sure you want to delete this medical record?')) return;
+    try {
+      await deleteMedicalRecord(user.id, id);
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete medical record');
     }
   };
 
@@ -863,7 +874,12 @@ export default function PatientHistory() {
       ) : (
         <div className="patient-history__timeline">
           {filteredHistory.map((entry, index) => (
-            <MedicalTimelineItem key={entry.id} entry={entry} isLast={index === filteredHistory.length - 1} />
+            <MedicalTimelineItem
+              key={entry.id}
+              entry={entry}
+              isLast={index === filteredHistory.length - 1}
+              onDelete={handleDeleteMedicalRecord}
+            />
           ))}
         </div>
       )}

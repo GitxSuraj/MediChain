@@ -317,4 +317,22 @@ export async function uploadMedicalRecord(
     summary: data.notes || data.diagnosis || '',
     fileName: payload.file_name,
   };
+}
+
+/** DELETE /patients/:id/history/:recordId — Delete a medical record */
+export async function deleteMedicalRecord(patientId: string, recordId: string): Promise<void> {
+  const token = localStorage.getItem('medichain_token') || '';
+  const res = await fetch(
+    `${API_BASE_URL}/patients/${encodeURIComponent(patientId)}/history/${encodeURIComponent(recordId)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || 'Failed to delete medical record.');
+  }
 }

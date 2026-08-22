@@ -36,9 +36,10 @@ const TYPE_COLOR: Record<MedicalHistoryEntry['type'], string> = {
 interface MedicalTimelineItemProps {
   entry: MedicalHistoryEntry;
   isLast: boolean;
+  onDelete?: (id: string) => void;
 }
 
-export default function MedicalTimelineItem({ entry, isLast }: MedicalTimelineItemProps) {
+export default function MedicalTimelineItem({ entry, isLast, onDelete }: MedicalTimelineItemProps) {
   const [expanded, setExpanded] = useState(false);
   const hasDetails = Boolean(entry.labValues?.length || entry.prescriptionItems?.length);
   const color = TYPE_COLOR[entry.type];
@@ -74,7 +75,37 @@ export default function MedicalTimelineItem({ entry, isLast }: MedicalTimelineIt
             </span>
             <h4>{entry.title}</h4>
           </div>
-          <span className="medical-timeline-item__date mono">{dateLabel}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="medical-timeline-item__date mono">{dateLabel}</span>
+            {onDelete && (
+              <button
+                className="btn-icon-delete"
+                onClick={() => onDelete(entry.id)}
+                title="Delete record"
+                aria-label="Delete record"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#ef4444',
+                  padding: '4px',
+                  borderRadius: '6px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fee2e2')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
         <p className="medical-timeline-item__meta text-secondary">{entry.doctor} · {entry.hospital}</p>
