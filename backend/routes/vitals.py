@@ -24,7 +24,8 @@ def _authenticate(patient_id: str, authorization: str | None) -> dict:
     
     # Staff access (read-only)
     if session.get("role") == "hospital_staff":
-        staff = db.hospital_staff.find_one({"_id": session["staff_id"]})
+        staff_id = session.get("staff_id")
+        staff = db.hospital_staff.find_one({"_id": staff_id}) if staff_id else None
         if not staff:
             raise HTTPException(401, "Staff account not found.")
         if staff.get("role") != "super_admin" and "view_patients" not in staff.get("permissions", []):
@@ -51,7 +52,7 @@ def _validate_vital_payload(payload: VitalCreate):
             raise HTTPException(400, f"{v_type.replace('_', ' ').capitalize()} requires 'value' in value.")
 
 @router.post("/{patient_id}/vitals")
-def add_vital(patient_id: str, payload: VitalCreate, authorization: str = Header(default=None)):
+def add_vital(patient_id: str, payload: VitalCreate, authorization: str | None = Header(default=None)):
     auth = _authenticate(patient_id, authorization)
     if auth["role"] != "patient":
         raise HTTPException(403, "Only patients can add their own vitals.")
@@ -60,17 +61,17 @@ def add_vital(patient_id: str, payload: VitalCreate, authorization: str = Header
     return vitals_db.add_vital(doc)
 
 @router.get("/{patient_id}/vitals")
-def get_vitals(patient_id: str, type: Optional[str] = Query(None), skip: int = Query(0), limit: int = Query(50), authorization: str = Header(default=None)):
+def get_vitals(patient_id: str, type: Optional[str] = Query(None), skip: int = Query(0), limit: int = Query(50), authorization: str | None = Header(default=None)):
     _authenticate(patient_id, authorization)
     return vitals_db.get_vitals(patient_id, type, skip, limit)
 
 @router.get("/{patient_id}/vitals/latest")
-def get_latest_vitals(patient_id: str, authorization: str = Header(default=None)):
+def get_latest_vitals(patient_id: str, authorization: str | None = Header(default=None)):
     _authenticate(patient_id, authorization)
     return vitals_db.get_latest_vitals(patient_id)
 
 @router.put("/{patient_id}/vitals/{vital_id}")
-def update_vital(patient_id: str, vital_id: str, payload: VitalUpdate, authorization: str = Header(default=None)):
+def update_vital(patient_id: str, vital_id: str, payload: VitalUpdate, authorization: str | None = Header(default=None)):
     auth = _authenticate(patient_id, authorization)
     if auth["role"] != "patient":
         raise HTTPException(403, "Only patients can update their own vitals.")
@@ -82,7 +83,7 @@ def update_vital(patient_id: str, vital_id: str, payload: VitalUpdate, authoriza
     return updated
 
 @router.delete("/{patient_id}/vitals/{vital_id}")
-def delete_vital(patient_id: str, vital_id: str, authorization: str = Header(default=None)):
+def delete_vital(patient_id: str, vital_id: str, authorization: str | None = Header(default=None)):
     auth = _authenticate(patient_id, authorization)
     if auth["role"] != "patient":
         raise HTTPException(403, "Only patients can delete their own vitals.")

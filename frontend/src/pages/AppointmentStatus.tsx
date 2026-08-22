@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   getAppointments,
@@ -29,16 +30,29 @@ export default function AppointmentStatus() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    getAppointments(user.id).then((data) => {
-      setAppointments(data);
+    if (!user) {
       setLoading(false);
-    });
+      return;
+    }
+    getAppointments(user.id)
+      .then((data) => {
+        setAppointments(data || []);
+      })
+      .catch((err) => {
+        setToast({ message: err instanceof Error ? err.message : 'Could not load appointments.', type: 'error' });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [user]);
 
   const counts = useMemo(() => {
     const base: Record<FilterValue, number> = { All: appointments.length, Pending: 0, Confirmed: 0, Completed: 0, Cancelled: 0 };
-    appointments.forEach((a) => { base[a.status] += 1; });
+    appointments.forEach((a) => {
+      if (base[a.status] !== undefined) {
+        base[a.status] += 1;
+      }
+    });
     return base;
   }, [appointments]);
 
@@ -48,6 +62,7 @@ export default function AppointmentStatus() {
   );
 
   async function handleCancel(id: string) {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
     setCancellingId(id);
     try {
       const updated = await cancelAppointment(id);
@@ -85,7 +100,7 @@ export default function AppointmentStatus() {
       ) : filtered.length === 0 ? (
         <div className="appt-status__empty card-surface">
           <p>No {filter !== 'All' ? filter.toLowerCase() : ''} appointments to show.</p>
-          <a href="/book-appointment" className="btn btn-primary">Book an Appointment</a>
+          <Link to="/book-appointment" className="btn btn-primary">Book an Appointment</Link>
         </div>
       ) : (
         <div className="appt-status__list">

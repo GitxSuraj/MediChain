@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, User, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
@@ -20,6 +20,7 @@ interface Notification {
 
 export default function Navbar({ title = 'Dashboard', sidebarCollapsed = false, onMobileMenuClick }: NavbarProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen]         = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -161,7 +162,7 @@ export default function Navbar({ title = 'Dashboard', sidebarCollapsed = false, 
               <div className="navbar__dropdown-divider" />
               <button
                 className="navbar__dropdown-item navbar__dropdown-item--danger"
-                onClick={() => { setDropdownOpen(false); logout(); }}
+                onClick={() => { setDropdownOpen(false); logout(); navigate('/login'); }}
               >
                 <LogOut size={15} /> Log Out
               </button>

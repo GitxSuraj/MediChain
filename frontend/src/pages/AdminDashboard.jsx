@@ -127,15 +127,24 @@ export default function AdminDashboard({ hospitalId }) {
       const scopedHospitals = hospitalId ? hospitalList.filter((hospital) => hospital.id === hospitalId) : hospitalList;
       setHospitals(scopedHospitals);
       setSelectedHospitalId(hospitalId || scopedHospitals[0]?.id || "");
-      const patients = await getPatients();
-      const selected = scopedHospitals[0];
-      setPatientCount(selected ? patients.filter((patient) => patient.current_hospital === selected.name).length : 0);
     } catch (err) {
       setError(err.message || "Unable to load hospitals.");
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!selectedHospitalId || hospitals.length === 0) return;
+    const target = hospitals.find((h) => h.id === selectedHospitalId);
+    if (!target) return;
+    getPatients()
+      .then((patients) => {
+        const count = (patients || []).filter((p) => p.current_hospital === target.name).length;
+        setPatientCount(count);
+      })
+      .catch(() => {});
+  }, [selectedHospitalId, hospitals]);
 
   async function handleUpdateBeds(delta) {
     if (!selectedHospital) {
@@ -340,14 +349,14 @@ export default function AdminDashboard({ hospitalId }) {
                 </div>
 
                 <div className="tag-row">
-                  {selectedHospital.facilities.map((facility) => (
+                  {(selectedHospital.facilities || []).map((facility) => (
                     <span className="tag" key={facility}>
                       {facility}
                     </span>
                   ))}
                 </div>
 
-                <BedCategorySummary beds={selectedHospital.beds} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+                <BedCategorySummary beds={selectedHospital.beds || {}} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
                 <div>
                   <p className="eyebrow" style={{ marginTop: "10px" }}>On-Duty Medical Roster</p>

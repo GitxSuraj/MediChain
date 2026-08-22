@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { getAllHospitals, type Hospital, type Doctor } from '../services/hospital';
 import { bookAppointment, AVAILABLE_TIME_SLOTS } from '../services/appointment';
 import StepIndicator from '../components/StepIndicator';
@@ -22,6 +23,7 @@ function todayIso(): string {
 }
 
 export default function BookAppointment() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loadingHospitals, setLoadingHospitals] = useState(true);
@@ -37,10 +39,16 @@ export default function BookAppointment() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    getAllHospitals().then((data) => {
-      setHospitals(data);
-      setLoadingHospitals(false);
-    });
+    getAllHospitals()
+      .then((data) => {
+        setHospitals(data || []);
+      })
+      .catch(() => {
+        setToast({ message: 'Failed to load hospitals list.', type: 'error' });
+      })
+      .finally(() => {
+        setLoadingHospitals(false);
+      });
   }, []);
 
   const selectedHospital = useMemo<Hospital | undefined>(
@@ -87,6 +95,10 @@ export default function BookAppointment() {
 
   async function handleConfirm() {
     if (!selectedHospital || !selectedDoctor) return;
+    if (!user) {
+      setToast({ message: 'Please sign in to book an appointment.', type: 'error' });
+      return;
+    }
     setSubmitting(true);
     try {
       const appt = await bookAppointment({
@@ -100,7 +112,6 @@ export default function BookAppointment() {
         time,
       });
 
-      // Create Razorpay order, then navigate to the dedicated payment page
       const order = await createPaymentOrder({
         appointment_id: appt.id,
       });
@@ -132,7 +143,6 @@ export default function BookAppointment() {
       </div>
 
       <div className="book-appointment__body card-surface fade-in-up">
-        {/* Step 1: Hospital + Doctor */}
         {step === 1 && (
           <div className="book-step">
             <h3 className="book-step__title">Choose Hospital & Doctor</h3>
@@ -203,7 +213,6 @@ export default function BookAppointment() {
           </div>
         )}
 
-        {/* Step 2: Symptoms, Date, Time */}
         {step === 2 && (
           <div className="book-step">
             <h3 className="book-step__title">Visit Details</h3>
@@ -253,7 +262,6 @@ export default function BookAppointment() {
           </div>
         )}
 
-        {/* Step 3: Confirm */}
         {step === 3 && selectedHospital && selectedDoctor && (
           <div className="book-step">
             <h3 className="book-step__title">Review & Confirm</h3>
@@ -285,7 +293,6 @@ export default function BookAppointment() {
           </div>
         )}
 
-        {/* Navigation */}
         <div className="book-appointment__nav">
           {step > 1 ? (
             <button className="btn btn-secondary" onClick={goBack} disabled={submitting}>Back</button>

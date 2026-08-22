@@ -103,10 +103,10 @@ export default function PatientHistory() {
       const q = query.toLowerCase();
       results = results.filter(
         (h) =>
-          h.title.toLowerCase().includes(q) ||
-          h.doctor.toLowerCase().includes(q) ||
-          h.hospital.toLowerCase().includes(q) ||
-          h.summary.toLowerCase().includes(q)
+          (h.title || '').toLowerCase().includes(q) ||
+          (h.doctor || '').toLowerCase().includes(q) ||
+          (h.hospital || '').toLowerCase().includes(q) ||
+          (h.summary || '').toLowerCase().includes(q)
       );
     }
     return results;
@@ -120,24 +120,26 @@ export default function PatientHistory() {
     try {
       let unit = '';
       let parsedValue: Record<string, any> = {};
+      const numVal = (v: any, fallback: number) => (v !== undefined && v !== '' && !isNaN(Number(v)) ? Number(v) : fallback);
+
       if (vitalType === 'blood_pressure') {
         unit = 'mmHg';
-        parsedValue = { systolic: Number(vitalValues.systolic || 120), diastolic: Number(vitalValues.diastolic || 80) };
+        parsedValue = { systolic: numVal(vitalValues.systolic, 120), diastolic: numVal(vitalValues.diastolic, 80) };
       } else if (vitalType === 'blood_sugar') {
         unit = 'mg/dL';
-        parsedValue = { level: Number(vitalValues.level || 100), fasting: Boolean(vitalValues.fasting) };
+        parsedValue = { level: numVal(vitalValues.level, 100), fasting: Boolean(vitalValues.fasting) };
       } else if (vitalType === 'weight') {
         unit = 'kg';
-        parsedValue = { value: Number(vitalValues.value || 65) };
+        parsedValue = { value: numVal(vitalValues.value, 65) };
       } else if (vitalType === 'heart_rate') {
         unit = 'bpm';
-        parsedValue = { value: Number(vitalValues.value || 72) };
+        parsedValue = { value: numVal(vitalValues.value, 72) };
       } else if (vitalType === 'temperature') {
         unit = '°F';
-        parsedValue = { value: Number(vitalValues.value || 98.6) };
+        parsedValue = { value: numVal(vitalValues.value, 98.6) };
       } else if (vitalType === 'spo2') {
         unit = '%';
-        parsedValue = { value: Number(vitalValues.value || 98) };
+        parsedValue = { value: numVal(vitalValues.value, 98) };
       }
 
       const newVital = await addVital(user.id, { type: vitalType, value: parsedValue, unit, notes: vitalNotes });

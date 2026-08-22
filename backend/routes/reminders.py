@@ -15,6 +15,14 @@ class ReminderIn(BaseModel):
     is_active: bool = True
 
 
+class ReminderUpdateIn(BaseModel):
+    medicine_name: str | None = None
+    dosage: str | None = None
+    times: list[str] | None = None
+    days: list[str] | None = None
+    is_active: bool | None = None
+
+
 def _get_patient_from_token(authorization: str | None):
     db = get_database()
     token = (authorization or "").removeprefix("Bearer ").strip()
@@ -44,7 +52,7 @@ def add_reminder(patient_id: str, payload: ReminderIn, authorization: str | None
 def edit_reminder(
     patient_id: str,
     reminder_id: str,
-    payload: ReminderIn,
+    payload: ReminderUpdateIn,
     authorization: str | None = Header(default=None),
 ):
     pid = _get_patient_from_token(authorization)
@@ -57,7 +65,8 @@ def edit_reminder(
         raise HTTPException(400, "Invalid reminder ID.")
     if not existing:
         raise HTTPException(404, "Reminder not found.")
-    updated = reminders_db.update_reminder(reminder_id, payload.model_dump())
+    update_data = payload.model_dump(exclude_unset=True)
+    updated = reminders_db.update_reminder(reminder_id, update_data)
     if not updated:
         raise HTTPException(500, "Failed to update reminder.")
     return updated

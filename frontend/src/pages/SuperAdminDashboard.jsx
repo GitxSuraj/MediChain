@@ -108,8 +108,9 @@ export default function SuperAdminDashboard({ hospitalId }) {
     setLoadingFacilities(true);
     setError("");
     try {
-      const data = await getFacilities();
-      setFacilities(data);
+      const hid = hospitalId || JSON.parse(localStorage.getItem('medichain_hospital') || '{}').id;
+      const data = await getFacilities(hid);
+      setFacilities(data || []);
     } catch (err) {
       setError(err.message || "Failed to load facilities.");
     } finally {

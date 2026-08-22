@@ -23,26 +23,39 @@ export default function HospitalReviewForm({ hospitalId, hospitalName, onSubmitt
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    getAppointments(user.id).then((appointments) => {
-      if (cancelled) return;
-      const eligible = appointments.filter(
-        (a) => a.status === 'Completed' && a.hospitalName === hospitalName
-      );
-      setEligibleAppointments(eligible);
-      setSelectedAppointmentId(eligible[0]?.id ?? '');
+    if (!user) {
       setLoadingAppointments(false);
-    });
+      return;
+    }
+    let cancelled = false;
+    getAppointments(user.id)
+      .then((appointments) => {
+        if (cancelled) return;
+        const allAppts = appointments || [];
+        const eligible = allAppts.filter(
+          (a) =>
+            ((a as any).hospitalId === hospitalId ||
+             (a as any).hospital_id === hospitalId ||
+             (a.hospitalName && hospitalName && a.hospitalName.trim().toLowerCase() === hospitalName.trim().toLowerCase()))
+        );
+        setEligibleAppointments(eligible);
+        setSelectedAppointmentId(eligible[0]?.id ?? '');
+      })
+      .catch((err) => {
+        console.warn('Failed to load appointments for review:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAppointments(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [user, hospitalName]);
+  }, [user, hospitalId, hospitalName]);
 
   async function handleSubmit() {
     if (!user) return;
     if (!selectedAppointmentId) {
-      setStatus({ type: 'error', message: 'Select the completed appointment this review is for.' });
+      setStatus({ type: 'error', message: 'Select an appointment for this hospital to submit a review.' });
       return;
     }
     if (rating < 1) {
@@ -64,11 +77,10 @@ export default function HospitalReviewForm({ hospitalId, hospitalName, onSubmitt
         }),
       });
 
-
       if (response.status === 403) {
         setStatus({
           type: 'error',
-          message: 'You can only review a hospital after a completed appointment there.',
+          message: 'You can only review a hospital after having an appointment there.',
         });
         return;
       }
@@ -84,6 +96,7 @@ export default function HospitalReviewForm({ hospitalId, hospitalName, onSubmitt
       setStatus({ type: 'success', message: 'Thanks — your review has been posted.' });
       setRating(0);
       setComment('');
+      setSelectedAppointmentId('');
       onSubmitted?.();
     } catch (err) {
       setStatus({ type: 'error', message: err instanceof Error ? err.message : 'Could not submit review.' });

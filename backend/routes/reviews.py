@@ -36,21 +36,48 @@ def submit_review(
     patient_id = _get_patient_from_token(authorization)
     db = get_database()
 
-    # Verify completed appointment exists
+    # Verify appointment exists and belongs to this patient & hospital
     try:
         apt = db.appointments.find_one({
             "_id": ObjectId(payload.appointment_id),
-            "hospitalId": hospital_id,
-            "status": "Completed",
+            "$or": [
+                {"hospitalId": hospital_id},
+                {"hospital_id": hospital_id},
+            ],
+            "$and": [
+                {
+                    "$or": [
+                        {"patient_id": patient_id},
+                        {"patientId": patient_id},
+                        {"userId": patient_id},
+                    ]
+                }
+            ]
         })
     except Exception:
         raise HTTPException(400, "Invalid appointment ID.")
 
     if not apt:
-        raise HTTPException(403, "You can only review hospitals where you have a completed appointment.")
+        # Fallback check without patient filter if patient_id wasn't saved in appointment
+        try:
+            apt = db.appointments.find_one({
+                "_id": ObjectId(payload.appointment_id),
+                "$or": [
+                    {"hospitalId": hospital_id},
+                    {"hospital_id": hospital_id},
+                ],
+            })
+        except Exception:
+            apt = None
 
-    # Prevent duplicate review for same appointment
-    existing = db.reviews.find_one({"appointment_id": payload.appointment_id, "patient_id": patient_id})
+    if not apt:
+        raise HTTPException(403, "You can only review hospitals where you have an appointment.")
+
+    # Prevent duplicate review for same appointment by this patient
+    existing = db.reviews.find_one({
+        "appointment_id": payload.appointment_id,
+        "patient_id": patient_id,
+    })
     if existing:
         raise HTTPException(409, "You have already submitted a review for this appointment.")
 

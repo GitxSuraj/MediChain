@@ -127,10 +127,10 @@ export default function MapView({ hospitals, onHospitalSelect }: MapViewProps) {
               <Popup>
                 <div className="map-view__popup">
                   <strong>{h.name}</strong>
-                  <span className="map-view__popup-specialties">{h.facilities.slice(0, 3).join(', ')}</span>
+                  <span className="map-view__popup-specialties">{(h.facilities || []).slice(0, 3).join(', ')}</span>
                   <span className="map-view__popup-line">
-                    {h.beds.general.available} general beds · {h.beds.icu.available} ICU
-                    {h.beds.ventilators ? ` · ${h.beds.ventilators.available} ventilators` : ''}
+                    {h.beds?.general?.available ?? 0} general beds · {h.beds?.icu?.available ?? 0} ICU
+                    {h.beds?.ventilators ? ` · ${h.beds.ventilators.available} ventilators` : ''}
                     {(h.reviewCount ?? 0) > 0 ? ` · ★ ${h.averageRating?.toFixed(1)}` : ''}
                   </span>
                   <DirectionsButton latitude={h.latitude!} longitude={h.longitude!} className="map-view__popup-directions" />
@@ -154,10 +154,10 @@ export default function MapView({ hospitals, onHospitalSelect }: MapViewProps) {
                 {distance != null ? `${distance.toFixed(1)} km away` : h.city}
               </span>
               <span className="map-view__list-beds" style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: 2, display: 'block', textAlign: 'left' }}>
-                🛏 {h.beds.general.available}/{h.beds.general.total} beds &nbsp;
-                💊 {h.beds.oxygen.available} O₂ &nbsp;
-                🚨 {h.beds.emergency.available} ER &nbsp;
-                🏥 {h.beds.icu.available} ICU
+                🛏 {h.beds?.general?.available ?? 0}/{h.beds?.general?.total ?? 0} beds &nbsp;
+                💊 {h.beds?.oxygen?.available ?? 0} O₂ &nbsp;
+                🚨 {h.beds?.emergency?.available ?? 0} ER &nbsp;
+                🏥 {h.beds?.icu?.available ?? 0} ICU
               </span>
             </button>
           );

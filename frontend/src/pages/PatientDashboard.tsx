@@ -41,19 +41,28 @@ export default function PatientDashboard() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const loadData = () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     Promise.all([
       getLatestVitals(user.id).catch(() => []),
-      getUpcomingAppointment(user.id),
-      getNearbyHospitals(3),
-      getRecentMedicalHistory(user.id, 4),
-    ]).then(([vitalsRes, apptRes, hospitalsRes, historyRes]) => {
-      setVitals(vitalsRes as LatestVital[]);
-      setAppointment(apptRes);
-      setHospitals(hospitalsRes);
-      setHistory(historyRes);
-      setLoading(false);
-    });
+      getUpcomingAppointment(user.id).catch(() => null),
+      getNearbyHospitals(3).catch(() => []),
+      getRecentMedicalHistory(user.id, 4).catch(() => []),
+    ])
+      .then(([vitalsRes, apptRes, hospitalsRes, historyRes]) => {
+        setVitals((vitalsRes || []) as LatestVital[]);
+        setAppointment(apptRes || null);
+        setHospitals(hospitalsRes || []);
+        setHistory(historyRes || []);
+      })
+      .catch((err) => {
+        console.error('Failed to load dashboard data:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => { loadData(); }, [user]);
@@ -68,41 +77,47 @@ export default function PatientDashboard() {
       alert('Only JPG, PNG, and PDF files are allowed.');
       e.target.value = ''; return;
     }
-    const MAX_SIZE = 100 * 1024;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
     if (file.size > MAX_SIZE) {
-      alert(`File is too large (${(file.size / 1024).toFixed(0)} KB). Maximum is 100 KB.`);
+      alert('File size exceeds 5MB limit.');
       e.target.value = ''; return;
     }
     setFileName(file.name);
     const reader = new FileReader();
-    reader.onloadend = () => setFileData(reader.result as string);
+    reader.onload = () => setFileData(reader.result as string);
     reader.readAsDataURL(file);
   };
 
-  const handleUploadSubmit = async (e: React.FormEvent) => {
+  const handleSaveUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !docTitle) return;
+    if (!user || !docTitle.trim()) return;
     setUploading(true);
     try {
       await uploadMedicalRecord(user.id, {
-        title: docTitle, type: docType, date: docDate,
-        doctor_name: docDoctor || 'Self-Uploaded / Clinic Doctor',
-        hospital_name: docHospital || 'Diagnostic Center / Lab',
-        diagnosis: docTitle,
-        prescription: docType === 'Prescription' ? docPrescription : undefined,
-        notes: docNotes || (docType === 'Prescription' ? docPrescription : docTitle),
+        title: docTitle,
+        type: docType,
+        doctor_name: docDoctor || undefined,
+        hospital_name: docHospital || undefined,
+        date: docDate,
+        notes: docNotes || undefined,
+        prescription: docPrescription || undefined,
         file_data: fileData || undefined,
         file_name: fileName || undefined,
       });
       setShowUploadModal(false);
-      setDocTitle(''); setDocDoctor(''); setDocHospital('');
-      setDocNotes(''); setDocPrescription('');
-      setFileData(null); setFileName(null);
+      setDocTitle('');
+      setDocDoctor('');
+      setDocHospital('');
+      setDocDate(new Date().toISOString().slice(0, 10));
+      setDocNotes('');
+      setDocPrescription('');
+      setFileData(null);
+      setFileName(null);
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 4000);
       loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to upload report.');
+      alert(err.message || 'Failed to save record.');
     } finally {
       setUploading(false);
     }
@@ -173,7 +188,7 @@ export default function PatientDashboard() {
               <h3>Upload Prescription / Test Report</h3>
               <button className="vital-modal-close" onClick={() => setShowUploadModal(false)}><X size={18} /></button>
             </div>
-            <form onSubmit={handleUploadSubmit}>
+            <form onSubmit={handleSaveUpload}>
               <div className="form-group">
                 <label className="form-label">Document Category *</label>
                 <select value={docType} onChange={(e) => setDocType(e.target.value)} className="input-text input-select">

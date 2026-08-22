@@ -119,18 +119,6 @@ def login(payload: LoginRequest):
 def hospital_login(payload: HospitalLoginRequest):
     db = get_database()
     account = db.hospital_users.find_one({"hospital_id": payload.hospital_id})
-    if not account and payload.password == "Hospital@123":
-        try:
-            hospital_object_id = ObjectId(payload.hospital_id)
-        except Exception as exc:
-            raise HTTPException(400, "Invalid hospital selection.") from exc
-        hospital = db.hospitals.find_one({"_id": hospital_object_id})
-        if hospital:
-            salt = secrets.token_hex(16)
-            account = {"hospital_id": payload.hospital_id, "hospital_object_id": hospital_object_id,
-                       "password_salt": salt, "password_hash": _hash(payload.password, salt)}
-            db.hospital_users.update_one({"hospital_id": payload.hospital_id}, {"$setOnInsert": account}, upsert=True)
-            account = db.hospital_users.find_one({"hospital_id": payload.hospital_id})
     if not account or not secrets.compare_digest(_hash(payload.password, account["password_salt"]), account["password_hash"]):
         raise HTTPException(401, "Incorrect hospital credentials.")
     hospital = db.hospitals.find_one({"_id": account["hospital_object_id"]})

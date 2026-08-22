@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   ALL_DAYS,
@@ -46,17 +46,18 @@ export default function MedicineReminders() {
   const [saving, setSaving] = useState(false);
 
   const firedThisMinuteRef = useRef<Set<string>>(new Set());
+  const lastMinuteRef = useRef<string>('');
 
-  function load() {
+  const load = useCallback(() => {
     if (!user) return;
     setLoading(true);
     getReminders(user.id)
       .then(setReminders)
       .catch((err) => setError(err instanceof Error ? err.message : 'Could not load reminders.'))
       .finally(() => setLoading(false));
-  }
+  }, [user]);
 
-  useEffect(load, [user]);
+  useEffect(() => { load(); }, [load]);
 
   // Reminder checker — runs ~every 30s while the page is open.
   useEffect(() => {
@@ -64,6 +65,12 @@ export default function MedicineReminders() {
       const day = currentDayLabel();
       const time = currentTimeLabel();
       const key = `${day}-${time}`;
+
+      // Clear the fired set when minute changes so future reminders can fire
+      if (lastMinuteRef.current !== key) {
+        firedThisMinuteRef.current.clear();
+        lastMinuteRef.current = key;
+      }
 
       reminders.forEach((r) => {
         if (!r.is_active) return;

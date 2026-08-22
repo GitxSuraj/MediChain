@@ -63,7 +63,7 @@ def create_new_order(payload: OrderCreateRequest, authorization: str | None = He
     req.add_header("Authorization", f"Basic {credentials}")
 
     try:
-        response = urllib.request.urlopen(req)
+        response = urllib.request.urlopen(req, timeout=10)
         razorpay_order = json.loads(response.read())
         razorpay_order_id = razorpay_order.get("id")
     except Exception as e:
@@ -116,10 +116,10 @@ def verify_payment(order_id: str, payload: VerifyOrderPaymentRequest, authorizat
         raise HTTPException(400, "Invalid payment signature.")
 
     # Mark paid and decrement stock
-    for item in order["items"]:
+    for item in order.get("items", []):
         med = get_medicine(order["hospital_id"], item["medicine_id"])
         if med:
-            new_qty = max(0, med.get("quantity", 0) - item["quantity"])
+            new_qty = max(0, med.get("quantity", 0) - item.get("quantity", 0))
             update_medicine(order["hospital_id"], item["medicine_id"], {"quantity": new_qty})
 
     updated_order = update_order(order_id, {
@@ -132,6 +132,16 @@ def verify_payment(order_id: str, payload: VerifyOrderPaymentRequest, authorizat
 def my_orders(authorization: str | None = Header(default=None)):
     patient = current_patient(authorization)
     return get_patient_orders(str(patient["_id"]))
+
+@router.get("/{order_id}")
+def single_order(order_id: str, authorization: str | None = Header(default=None)):
+    patient = current_patient(authorization)
+    order = get_order(order_id)
+    if not order:
+        raise HTTPException(404, "Order not found.")
+    if order.get("patient_id") != str(patient["_id"]):
+        raise HTTPException(403, "Not authorized to view this order.")
+    return order
 
 @router.get("/hospitals/{hospital_id}")
 def hospital_orders(hospital_id: str, authorization: str | None = Header(default=None)):

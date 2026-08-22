@@ -96,11 +96,20 @@ export default function PatientTransfer() {
             className={message.type === 'success' ? 'badge-success' : 'badge-danger'}
             style={{
               padding: '12px 16px', borderRadius: 8, marginTop: 16, marginBottom: 8,
-              display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', width: '100%'
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem', width: '100%'
             }}
           >
-            {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-            <span>{message.text}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              <span>{message.text}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMessage(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 4 }}
+            >
+              ✕
+            </button>
           </div>
         )}
 
